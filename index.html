@@ -1,0 +1,5822 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E1210">
+<title>RunQuest — Motivation course à pied</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   RunQuest — design tokens
+   Palette : nuit forestière + accent lever-de-soleil
+   Type : Space Grotesk (display) + Inter (texte)
+   ========================================================= */
+
+:root {
+  --bg: #0E1210;
+  --surface: #171D1A;
+  --surface-2: #1F2620;
+  --surface-3: #263029;
+  --border: #2B342E;
+  --text: #EDF2EE;
+  --text-muted: #8FA396;
+  --text-faint: #5A6960;
+  --accent: #FF7A45;
+  --accent-dim: #B85C34;
+  --moss: #6BCB77;
+  --gold: #E8B84B;
+  --danger: #E5615A;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --nav-height: 76px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100vh;
+  padding-bottom: calc(var(--nav-height) + 16px);
+}
+
+h1, h2, h3 { font-family: 'Space Grotesk', 'Inter', sans-serif; margin: 0; }
+
+button, input, select, textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+.app-root {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 20px 16px 8px;
+}
+
+/* ---------------- Navigation basse ---------------- */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: var(--nav-height);
+  background: rgba(23, 29, 26, 0.92);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 50;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-faint);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 10px;
+  min-width: 56px;
+  min-height: 48px;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+.nav-btn .nav-icon { font-size: 20px; line-height: 1; }
+.nav-btn.active { color: var(--accent); }
+
+.nav-btn-center {
+  background: linear-gradient(160deg, var(--accent), var(--accent-dim));
+  color: #1a0f08;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  font-size: 28px;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(255, 122, 69, 0.35);
+  margin-top: -18px;
+}
+.nav-btn-center .nav-icon { font-size: 28px; }
+.nav-btn-center.active { color: #1a0f08; }
+
+/* ---------------- Cartes génériques ---------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+.card.empty { text-align: center; cursor: pointer; }
+
+.card-eyebrow, .collection-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.card-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+.card-foot { font-size: 13px; color: var(--text-muted); margin-top: 8px; }
+
+.progress-bar {
+  height: 10px;
+  background: var(--surface-3);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-bar.small { height: 7px; }
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--moss), #8FE39C);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+.progress-fill.accent {
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+}
+
+/* ---------------- Accueil ---------------- */
+
+.hero {
+  padding: 22px 4px 26px;
+}
+.hero-label {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.hero-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.05;
+  margin-top: 4px;
+  background: linear-gradient(120deg, var(--text), var(--moss));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-unit { font-size: 24px; font-weight: 600; color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); }
+.hero-sub { margin-top: 8px; font-size: 14px; color: var(--text-muted); }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 18px 0;
+}
+.stat-grid.full { grid-template-columns: repeat(2, 1fr); }
+.stat-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+.stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; }
+.stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.fab-inline {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, var(--accent), var(--accent-dim));
+  color: #1a0f08;
+  font-weight: 700;
+  font-size: 16px;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+/* ---------------- Écrans génériques ---------------- */
+
+.screen-title { font-size: 26px; font-weight: 700; margin-bottom: 16px; }
+.section-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 22px 0 10px;
+  font-weight: 700;
+}
+
+/* ---------------- Défis ---------------- */
+
+.challenge-list { display: flex; flex-direction: column; gap: 10px; }
+.challenge-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+.challenge-item.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.challenge-item.completed { border-color: var(--gold); }
+.challenge-name { font-weight: 700; font-size: 15px; }
+.challenge-desc { font-size: 12.5px; color: var(--text-muted); margin: 4px 0 10px; }
+.challenge-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 12.5px; color: var(--text-muted); }
+
+.badge-pill {
+  background: var(--accent);
+  color: #1a0f08;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.btn-small {
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 999px;
+  min-height: 34px;
+}
+
+/* ---------------- Formulaire ---------------- */
+
+.run-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.run-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.run-form input, .run-form select, .run-form textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 16px;
+  color: var(--text);
+  min-height: 48px;
+}
+.run-form textarea { min-height: 72px; resize: vertical; }
+.checkbox-row { flex-direction: row; align-items: center; gap: 10px; }
+.checkbox-row input { width: 22px; height: 22px; min-height: unset; }
+
+.btn-primary {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  background: linear-gradient(160deg, var(--accent), var(--accent-dim));
+  color: #1a0f08;
+  font-weight: 700;
+  font-size: 16px;
+  margin-top: 6px;
+  min-height: 52px;
+}
+.btn-secondary {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  min-height: 48px;
+  cursor: pointer;
+}
+.file-label { display: block; }
+
+/* ---------------- Collection ---------------- */
+
+.collection-header {
+  text-align: center;
+  padding: 20px 0;
+}
+.collection-count {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.badge-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 8px;
+  text-align: center;
+  position: relative;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.badge-tile.unlocked {
+  border-color: var(--moss);
+  background: linear-gradient(160deg, var(--surface-2), var(--surface));
+}
+.badge-tile.locked { opacity: 0.55; filter: grayscale(0.7); }
+.badge-tile-icon { font-size: 24px; }
+.lock-icon { position: absolute; top: 8px; right: 8px; font-size: 12px; }
+.badge-tile-name { font-size: 10.5px; font-weight: 600; line-height: 1.25; }
+
+/* ---------------- Historique ---------------- */
+
+.history-list { display: flex; flex-direction: column; gap: 8px; }
+.history-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.history-date { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; }
+.history-main { font-weight: 600; margin: 3px 0; }
+.history-sub { font-size: 12px; color: var(--text-muted); }
+.empty-state { color: var(--text-muted); font-size: 14px; padding: 20px 0; text-align: center; }
+
+.data-actions { display: flex; flex-direction: column; gap: 10px; margin: 22px 0; }
+
+/* ---------------- Animation de déblocage ---------------- */
+
+.unlock-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 6, 0.88);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.unlock-card {
+  background: var(--surface);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-lg);
+  padding: 28px 22px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  animation: popIn 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+@keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.unlock-label {
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.unlock-image { display: flex; justify-content: center; margin-bottom: 14px; }
+.badge-image-wrap { width: 96px; height: 96px; }
+.badge-real-image {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--gold);
+  background: var(--surface-2);
+}
+.badge-placeholder {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, var(--surface-3), var(--surface));
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.badge-icon { font-size: 42px; }
+.unlock-name { font-weight: 700; font-size: 18px; margin-bottom: 6px; }
+.unlock-condition { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.unlock-date { font-size: 12px; color: var(--text-faint); margin-bottom: 18px; }
+
+/* ---------------- Toast ---------------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--nav-height) + 16px);
+  transform: translate(-50%, 12px);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 200;
+  max-width: 90%;
+  text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast-error { border-color: var(--danger); color: var(--danger); }
+
+/* ---------------- Accessibilité / responsive ---------------- */
+
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (min-width: 640px) {
+  .badge-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+</style>
+</head>
+<body>
+
+<main id="screen-root" class="app-root"></main>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-screen="accueil"><span class="nav-icon">🏠</span><span class="nav-text">Accueil</span></button>
+  <button class="nav-btn" data-screen="defis"><span class="nav-icon">🗺️</span><span class="nav-text">Défis</span></button>
+  <button class="nav-btn nav-btn-center" data-screen="ajouter"><span class="nav-icon">+</span></button>
+  <button class="nav-btn" data-screen="collection"><span class="nav-icon">🎖️</span><span class="nav-text">Collection</span></button>
+  <button class="nav-btn" data-screen="stats"><span class="nav-icon">📊</span><span class="nav-text">Stats</span></button>
+</nav>
+
+<script>
+/* ============ data/badges.js ============ */
+// Données des badges — moteur data-driven, ne pas coder de logique ici.
+// Généré : catégories A à K (badges permanents).
+const BADGES = [
+  {
+    "id": "distance_single_01",
+    "name": "Souris",
+    "collection": "distance_unique",
+    "description": "1 km parcouru sur une seule sortie",
+    "condition": "Parcourir 1 km sur une seule sortie",
+    "target": 1,
+    "unit": "km",
+    "image": "assets/badges/distance_single_01.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal"
+  },
+  {
+    "id": "distance_single_02",
+    "name": "Lapin",
+    "collection": "distance_unique",
+    "description": "2 km parcourus sur une seule sortie",
+    "condition": "Parcourir 2 km sur une seule sortie",
+    "target": 2,
+    "unit": "km",
+    "image": "assets/badges/distance_single_02.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal"
+  },
+  {
+    "id": "distance_single_03",
+    "name": "Renard",
+    "collection": "distance_unique",
+    "description": "3 km parcourus sur une seule sortie",
+    "condition": "Parcourir 3 km sur une seule sortie",
+    "target": 3,
+    "unit": "km",
+    "image": "assets/badges/distance_single_03.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal"
+  },
+  {
+    "id": "distance_single_04",
+    "name": "Chacal",
+    "collection": "distance_unique",
+    "description": "5 km parcourus sur une seule sortie",
+    "condition": "Parcourir 5 km sur une seule sortie",
+    "target": 5,
+    "unit": "km",
+    "image": "assets/badges/distance_single_04.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal"
+  },
+  {
+    "id": "distance_single_05",
+    "name": "Loup",
+    "collection": "distance_unique",
+    "description": "7 km parcourus sur une seule sortie",
+    "condition": "Parcourir 7 km sur une seule sortie",
+    "target": 7,
+    "unit": "km",
+    "image": "assets/badges/distance_single_05.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal"
+  },
+  {
+    "id": "distance_single_06",
+    "name": "Cerf",
+    "collection": "distance_unique",
+    "description": "10 km parcourus sur une seule sortie",
+    "condition": "Parcourir 10 km sur une seule sortie",
+    "target": 10,
+    "unit": "km",
+    "image": "assets/badges/distance_single_06.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal"
+  },
+  {
+    "id": "distance_single_07",
+    "name": "Antilope",
+    "collection": "distance_unique",
+    "description": "12 km parcourus sur une seule sortie",
+    "condition": "Parcourir 12 km sur une seule sortie",
+    "target": 12,
+    "unit": "km",
+    "image": "assets/badges/distance_single_07.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal"
+  },
+  {
+    "id": "distance_single_08",
+    "name": "Guépard",
+    "collection": "distance_unique",
+    "description": "15 km parcourus sur une seule sortie",
+    "condition": "Parcourir 15 km sur une seule sortie",
+    "target": 15,
+    "unit": "km",
+    "image": "assets/badges/distance_single_08.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal"
+  },
+  {
+    "id": "distance_single_09",
+    "name": "Étalon",
+    "collection": "distance_unique",
+    "description": "18 km parcourus sur une seule sortie",
+    "condition": "Parcourir 18 km sur une seule sortie",
+    "target": 18,
+    "unit": "km",
+    "image": "assets/badges/distance_single_09.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal"
+  },
+  {
+    "id": "distance_single_10",
+    "name": "Aigle royal",
+    "collection": "distance_unique",
+    "description": "Semi-marathon parcouru sur une seule sortie",
+    "condition": "Parcourir 21.1 km sur une seule sortie",
+    "target": 21.1,
+    "unit": "km",
+    "image": "assets/badges/distance_single_10.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal"
+  },
+  {
+    "id": "streak_01",
+    "name": "Série de 2 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 2 jours",
+    "condition": "Maintenir une série de 2 jours consécutifs",
+    "target": 2,
+    "unit": "jours",
+    "image": "assets/badges/streak_01.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_02",
+    "name": "Série de 3 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 3 jours",
+    "condition": "Maintenir une série de 3 jours consécutifs",
+    "target": 3,
+    "unit": "jours",
+    "image": "assets/badges/streak_02.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_03",
+    "name": "Série de 5 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 5 jours",
+    "condition": "Maintenir une série de 5 jours consécutifs",
+    "target": 5,
+    "unit": "jours",
+    "image": "assets/badges/streak_03.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_04",
+    "name": "Série de 7 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 7 jours",
+    "condition": "Maintenir une série de 7 jours consécutifs",
+    "target": 7,
+    "unit": "jours",
+    "image": "assets/badges/streak_04.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_05",
+    "name": "Série de 10 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 10 jours",
+    "condition": "Maintenir une série de 10 jours consécutifs",
+    "target": 10,
+    "unit": "jours",
+    "image": "assets/badges/streak_05.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_06",
+    "name": "Série de 14 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 14 jours",
+    "condition": "Maintenir une série de 14 jours consécutifs",
+    "target": 14,
+    "unit": "jours",
+    "image": "assets/badges/streak_06.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_07",
+    "name": "Série de 21 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 21 jours",
+    "condition": "Maintenir une série de 21 jours consécutifs",
+    "target": 21,
+    "unit": "jours",
+    "image": "assets/badges/streak_07.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_08",
+    "name": "Série de 30 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 30 jours",
+    "condition": "Maintenir une série de 30 jours consécutifs",
+    "target": 30,
+    "unit": "jours",
+    "image": "assets/badges/streak_08.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_09",
+    "name": "Série de 50 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 50 jours",
+    "condition": "Maintenir une série de 50 jours consécutifs",
+    "target": 50,
+    "unit": "jours",
+    "image": "assets/badges/streak_09.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_10",
+    "name": "Série de 75 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 75 jours",
+    "condition": "Maintenir une série de 75 jours consécutifs",
+    "target": 75,
+    "unit": "jours",
+    "image": "assets/badges/streak_10.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_11",
+    "name": "Série de 100 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 100 jours",
+    "condition": "Maintenir une série de 100 jours consécutifs",
+    "target": 100,
+    "unit": "jours",
+    "image": "assets/badges/streak_11.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_12",
+    "name": "Série de 180 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 180 jours",
+    "condition": "Maintenir une série de 180 jours consécutifs",
+    "target": 180,
+    "unit": "jours",
+    "image": "assets/badges/streak_12.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "streak_13",
+    "name": "Série de 365 jours",
+    "collection": "regularite",
+    "description": "Courir régulièrement pendant 365 jours",
+    "condition": "Maintenir une série de 365 jours consécutifs",
+    "target": 365,
+    "unit": "jours",
+    "image": "assets/badges/streak_13.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "pace_01",
+    "name": "Tortue",
+    "collection": "vitesse",
+    "description": "Atteindre une allure moyenne de 8:00 min/km sur au moins 1 km",
+    "condition": "Allure ≤ 8:00 min/km sur au moins 1 km",
+    "target": "8:00",
+    "unit": "min/km",
+    "image": "assets/badges/pace_01.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal_vitesse"
+  },
+  {
+    "id": "pace_02",
+    "name": "Escargot rapide",
+    "collection": "vitesse",
+    "description": "Atteindre une allure moyenne de 7:30 min/km sur au moins 1 km",
+    "condition": "Allure ≤ 7:30 min/km sur au moins 1 km",
+    "target": "7:30",
+    "unit": "min/km",
+    "image": "assets/badges/pace_02.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal_vitesse"
+  },
+  {
+    "id": "pace_03",
+    "name": "Chien de promenade",
+    "collection": "vitesse",
+    "description": "Atteindre une allure moyenne de 7:00 min/km sur au moins 1 km",
+    "condition": "Allure ≤ 7:00 min/km sur au moins 1 km",
+    "target": "7:00",
+    "unit": "min/km",
+    "image": "assets/badges/pace_03.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal_vitesse"
+  },
+  {
+    "id": "pace_04",
+    "name": "Coyote",
+    "collection": "vitesse",
+    "description": "Atteindre une allure moyenne de 6:30 min/km sur au moins 1 km",
+    "condition": "Allure ≤ 6:30 min/km sur au moins 1 km",
+    "target": "6:30",
+    "unit": "min/km",
+    "image": "assets/badges/pace_04.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal_vitesse"
+  },
+  {
+    "id": "pace_05",
+    "name": "Chevreuil",
+    "collection": "vitesse",
+    "description": "Atteindre une allure moyenne de 6:00 min/km sur au moins 1 km",
+    "condition": "Allure ≤ 6:00 min/km sur au moins 1 km",
+    "target": "6:00",
+    "unit": "min/km",
+    "image": "assets/badges/pace_05.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal_vitesse"
+  },
+  {
+    "id": "pace_06",
+    "name": "Lévrier",
+    "collection": "vitesse",
+    "description": "Atteindre une allure moyenne de 5:30 min/km sur au moins 1 km",
+    "condition": "Allure ≤ 5:30 min/km sur au moins 1 km",
+    "target": "5:30",
+    "unit": "min/km",
+    "image": "assets/badges/pace_06.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal_vitesse"
+  },
+  {
+    "id": "pace_07",
+    "name": "Panthère",
+    "collection": "vitesse",
+    "description": "Atteindre une allure moyenne de 5:00 min/km sur au moins 1 km",
+    "condition": "Allure ≤ 5:00 min/km sur au moins 1 km",
+    "target": "5:00",
+    "unit": "min/km",
+    "image": "assets/badges/pace_07.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal_vitesse"
+  },
+  {
+    "id": "pace_08",
+    "name": "Faucon",
+    "collection": "vitesse",
+    "description": "Atteindre une allure moyenne de 4:30 min/km sur au moins 1 km",
+    "condition": "Allure ≤ 4:30 min/km sur au moins 1 km",
+    "target": "4:30",
+    "unit": "min/km",
+    "image": "assets/badges/pace_08.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal_vitesse"
+  },
+  {
+    "id": "pace_09",
+    "name": "Guépard en chasse",
+    "collection": "vitesse",
+    "description": "Atteindre une allure moyenne de 4:00 min/km sur au moins 1 km",
+    "condition": "Allure ≤ 4:00 min/km sur au moins 1 km",
+    "target": "4:00",
+    "unit": "min/km",
+    "image": "assets/badges/pace_09.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal_vitesse"
+  },
+  {
+    "id": "pace_10",
+    "name": "Éclair",
+    "collection": "vitesse",
+    "description": "Atteindre une allure moyenne de 3:30 min/km sur au moins 1 km",
+    "condition": "Allure ≤ 3:30 min/km sur au moins 1 km",
+    "target": "3:30",
+    "unit": "min/km",
+    "image": "assets/badges/pace_10.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "animal_vitesse"
+  },
+  {
+    "id": "elevation_01",
+    "name": "Colline",
+    "collection": "denivele",
+    "description": "Cumuler 50 m de dénivelé positif sur une seule sortie",
+    "condition": "D+ ≥ 50 m sur une sortie",
+    "target": 50,
+    "unit": "m",
+    "image": "assets/badges/elevation_01.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "montagne"
+  },
+  {
+    "id": "elevation_02",
+    "name": "Coteau",
+    "collection": "denivele",
+    "description": "Cumuler 100 m de dénivelé positif sur une seule sortie",
+    "condition": "D+ ≥ 100 m sur une sortie",
+    "target": 100,
+    "unit": "m",
+    "image": "assets/badges/elevation_02.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "montagne"
+  },
+  {
+    "id": "elevation_03",
+    "name": "Butte",
+    "collection": "denivele",
+    "description": "Cumuler 200 m de dénivelé positif sur une seule sortie",
+    "condition": "D+ ≥ 200 m sur une sortie",
+    "target": 200,
+    "unit": "m",
+    "image": "assets/badges/elevation_03.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "montagne"
+  },
+  {
+    "id": "elevation_04",
+    "name": "Piémont",
+    "collection": "denivele",
+    "description": "Cumuler 300 m de dénivelé positif sur une seule sortie",
+    "condition": "D+ ≥ 300 m sur une sortie",
+    "target": 300,
+    "unit": "m",
+    "image": "assets/badges/elevation_04.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "montagne"
+  },
+  {
+    "id": "elevation_05",
+    "name": "Contrefort",
+    "collection": "denivele",
+    "description": "Cumuler 500 m de dénivelé positif sur une seule sortie",
+    "condition": "D+ ≥ 500 m sur une sortie",
+    "target": 500,
+    "unit": "m",
+    "image": "assets/badges/elevation_05.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "montagne"
+  },
+  {
+    "id": "elevation_06",
+    "name": "Sommet secondaire",
+    "collection": "denivele",
+    "description": "Cumuler 750 m de dénivelé positif sur une seule sortie",
+    "condition": "D+ ≥ 750 m sur une sortie",
+    "target": 750,
+    "unit": "m",
+    "image": "assets/badges/elevation_06.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "montagne"
+  },
+  {
+    "id": "elevation_07",
+    "name": "Sommet",
+    "collection": "denivele",
+    "description": "Cumuler 1000 m de dénivelé positif sur une seule sortie",
+    "condition": "D+ ≥ 1000 m sur une sortie",
+    "target": 1000,
+    "unit": "m",
+    "image": "assets/badges/elevation_07.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "montagne"
+  },
+  {
+    "id": "elevation_08",
+    "name": "Haute montagne",
+    "collection": "denivele",
+    "description": "Cumuler 1500 m de dénivelé positif sur une seule sortie",
+    "condition": "D+ ≥ 1500 m sur une sortie",
+    "target": 1500,
+    "unit": "m",
+    "image": "assets/badges/elevation_08.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "montagne"
+  },
+  {
+    "id": "elevation_09",
+    "name": "Pic majeur",
+    "collection": "denivele",
+    "description": "Cumuler 2000 m de dénivelé positif sur une seule sortie",
+    "condition": "D+ ≥ 2000 m sur une sortie",
+    "target": 2000,
+    "unit": "m",
+    "image": "assets/badges/elevation_09.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "montagne"
+  },
+  {
+    "id": "elevation_10",
+    "name": "Cime légendaire",
+    "collection": "denivele",
+    "description": "Cumuler 2500 m de dénivelé positif sur une seule sortie",
+    "condition": "D+ ≥ 2500 m sur une sortie",
+    "target": 2500,
+    "unit": "m",
+    "image": "assets/badges/elevation_10.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "montagne"
+  },
+  {
+    "id": "dept_01",
+    "name": "Ain",
+    "collection": "departements",
+    "description": "Chemin du Pont-de-Cé",
+    "condition": "Enregistrer au moins une course dans le département Ain (01)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_01.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "01",
+    "symbole": "Chemin du Pont-de-Cé"
+  },
+  {
+    "id": "dept_02",
+    "name": "Aisne",
+    "collection": "departements",
+    "description": "Cathédrale de Laon",
+    "condition": "Enregistrer au moins une course dans le département Aisne (02)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_02.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "02",
+    "symbole": "Cathédrale de Laon"
+  },
+  {
+    "id": "dept_03",
+    "name": "Allier",
+    "collection": "departements",
+    "description": "Palais de Vichy",
+    "condition": "Enregistrer au moins une course dans le département Allier (03)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_03.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "03",
+    "symbole": "Palais de Vichy"
+  },
+  {
+    "id": "dept_04",
+    "name": "Alpes-de-Haute-Provence",
+    "collection": "departements",
+    "description": "Gorges du Verdon",
+    "condition": "Enregistrer au moins une course dans le département Alpes-de-Haute-Provence (04)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_04.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "04",
+    "symbole": "Gorges du Verdon"
+  },
+  {
+    "id": "dept_05",
+    "name": "Hautes-Alpes",
+    "collection": "departements",
+    "description": "Massif des Écrins",
+    "condition": "Enregistrer au moins une course dans le département Hautes-Alpes (05)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_05.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "05",
+    "symbole": "Massif des Écrins"
+  },
+  {
+    "id": "dept_06",
+    "name": "Alpes-Maritimes",
+    "collection": "departements",
+    "description": "Promenade des Anglais",
+    "condition": "Enregistrer au moins une course dans le département Alpes-Maritimes (06)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_06.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "06",
+    "symbole": "Promenade des Anglais"
+  },
+  {
+    "id": "dept_07",
+    "name": "Ardèche",
+    "collection": "departements",
+    "description": "Gorges de l'Ardèche",
+    "condition": "Enregistrer au moins une course dans le département Ardèche (07)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_07.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "07",
+    "symbole": "Gorges de l'Ardèche"
+  },
+  {
+    "id": "dept_08",
+    "name": "Ardennes",
+    "collection": "departements",
+    "description": "Forêt des Ardennes",
+    "condition": "Enregistrer au moins une course dans le département Ardennes (08)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_08.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "08",
+    "symbole": "Forêt des Ardennes"
+  },
+  {
+    "id": "dept_09",
+    "name": "Ariège",
+    "collection": "departements",
+    "description": "Château de Foix",
+    "condition": "Enregistrer au moins une course dans le département Ariège (09)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_09.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "09",
+    "symbole": "Château de Foix"
+  },
+  {
+    "id": "dept_10",
+    "name": "Aube",
+    "collection": "departements",
+    "description": "Cathédrale de Troyes",
+    "condition": "Enregistrer au moins une course dans le département Aube (10)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_10.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "10",
+    "symbole": "Cathédrale de Troyes"
+  },
+  {
+    "id": "dept_11",
+    "name": "Aude",
+    "collection": "departements",
+    "description": "Cité de Carcassonne",
+    "condition": "Enregistrer au moins une course dans le département Aude (11)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_11.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "11",
+    "symbole": "Cité de Carcassonne"
+  },
+  {
+    "id": "dept_12",
+    "name": "Aveyron",
+    "collection": "departements",
+    "description": "Viaduc de Millau",
+    "condition": "Enregistrer au moins une course dans le département Aveyron (12)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_12.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "12",
+    "symbole": "Viaduc de Millau"
+  },
+  {
+    "id": "dept_13",
+    "name": "Bouches-du-Rhône",
+    "collection": "departements",
+    "description": "Calanques de Marseille",
+    "condition": "Enregistrer au moins une course dans le département Bouches-du-Rhône (13)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_13.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "13",
+    "symbole": "Calanques de Marseille"
+  },
+  {
+    "id": "dept_14",
+    "name": "Calvados",
+    "collection": "departements",
+    "description": "Plages du Débarquement",
+    "condition": "Enregistrer au moins une course dans le département Calvados (14)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_14.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "14",
+    "symbole": "Plages du Débarquement"
+  },
+  {
+    "id": "dept_15",
+    "name": "Cantal",
+    "collection": "departements",
+    "description": "Volcans du Cantal",
+    "condition": "Enregistrer au moins une course dans le département Cantal (15)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_15.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "15",
+    "symbole": "Volcans du Cantal"
+  },
+  {
+    "id": "dept_16",
+    "name": "Charente",
+    "collection": "departements",
+    "description": "Cognac et vignobles",
+    "condition": "Enregistrer au moins une course dans le département Charente (16)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_16.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "16",
+    "symbole": "Cognac et vignobles"
+  },
+  {
+    "id": "dept_17",
+    "name": "Charente-Maritime",
+    "collection": "departements",
+    "description": "Fort Boyard",
+    "condition": "Enregistrer au moins une course dans le département Charente-Maritime (17)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_17.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "17",
+    "symbole": "Fort Boyard"
+  },
+  {
+    "id": "dept_18",
+    "name": "Cher",
+    "collection": "departements",
+    "description": "Cathédrale de Bourges",
+    "condition": "Enregistrer au moins une course dans le département Cher (18)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_18.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "18",
+    "symbole": "Cathédrale de Bourges"
+  },
+  {
+    "id": "dept_19",
+    "name": "Corrèze",
+    "collection": "departements",
+    "description": "Collonges-la-Rouge",
+    "condition": "Enregistrer au moins une course dans le département Corrèze (19)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_19.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "19",
+    "symbole": "Collonges-la-Rouge"
+  },
+  {
+    "id": "dept_2A",
+    "name": "Corse-du-Sud",
+    "collection": "departements",
+    "description": "Golfe d'Ajaccio",
+    "condition": "Enregistrer au moins une course dans le département Corse-du-Sud (2A)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_2A.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "2A",
+    "symbole": "Golfe d'Ajaccio"
+  },
+  {
+    "id": "dept_2B",
+    "name": "Haute-Corse",
+    "collection": "departements",
+    "description": "Cap Corse",
+    "condition": "Enregistrer au moins une course dans le département Haute-Corse (2B)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_2B.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "2B",
+    "symbole": "Cap Corse"
+  },
+  {
+    "id": "dept_21",
+    "name": "Côte-d'Or",
+    "collection": "departements",
+    "description": "Vignobles de Bourgogne",
+    "condition": "Enregistrer au moins une course dans le département Côte-d'Or (21)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_21.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "21",
+    "symbole": "Vignobles de Bourgogne"
+  },
+  {
+    "id": "dept_22",
+    "name": "Côtes-d'Armor",
+    "collection": "departements",
+    "description": "Côte de granit rose",
+    "condition": "Enregistrer au moins une course dans le département Côtes-d'Armor (22)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_22.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "22",
+    "symbole": "Côte de granit rose"
+  },
+  {
+    "id": "dept_23",
+    "name": "Creuse",
+    "collection": "departements",
+    "description": "Étangs de la Creuse",
+    "condition": "Enregistrer au moins une course dans le département Creuse (23)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_23.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "23",
+    "symbole": "Étangs de la Creuse"
+  },
+  {
+    "id": "dept_24",
+    "name": "Dordogne",
+    "collection": "departements",
+    "description": "Château de Beynac",
+    "condition": "Enregistrer au moins une course dans le département Dordogne (24)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_24.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "24",
+    "symbole": "Château de Beynac"
+  },
+  {
+    "id": "dept_25",
+    "name": "Doubs",
+    "collection": "departements",
+    "description": "Citadelle de Besançon",
+    "condition": "Enregistrer au moins une course dans le département Doubs (25)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_25.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "25",
+    "symbole": "Citadelle de Besançon"
+  },
+  {
+    "id": "dept_26",
+    "name": "Drôme",
+    "collection": "departements",
+    "description": "Champs de lavande",
+    "condition": "Enregistrer au moins une course dans le département Drôme (26)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_26.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "26",
+    "symbole": "Champs de lavande"
+  },
+  {
+    "id": "dept_27",
+    "name": "Eure",
+    "collection": "departements",
+    "description": "Giverny",
+    "condition": "Enregistrer au moins une course dans le département Eure (27)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_27.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "27",
+    "symbole": "Giverny"
+  },
+  {
+    "id": "dept_28",
+    "name": "Eure-et-Loir",
+    "collection": "departements",
+    "description": "Cathédrale de Chartres",
+    "condition": "Enregistrer au moins une course dans le département Eure-et-Loir (28)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_28.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "28",
+    "symbole": "Cathédrale de Chartres"
+  },
+  {
+    "id": "dept_29",
+    "name": "Finistère",
+    "collection": "departements",
+    "description": "Pointe du Raz",
+    "condition": "Enregistrer au moins une course dans le département Finistère (29)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_29.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "29",
+    "symbole": "Pointe du Raz"
+  },
+  {
+    "id": "dept_30",
+    "name": "Gard",
+    "collection": "departements",
+    "description": "Pont du Gard",
+    "condition": "Enregistrer au moins une course dans le département Gard (30)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_30.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "30",
+    "symbole": "Pont du Gard"
+  },
+  {
+    "id": "dept_31",
+    "name": "Haute-Garonne",
+    "collection": "departements",
+    "description": "Capitole de Toulouse",
+    "condition": "Enregistrer au moins une course dans le département Haute-Garonne (31)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_31.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "31",
+    "symbole": "Capitole de Toulouse"
+  },
+  {
+    "id": "dept_32",
+    "name": "Gers",
+    "collection": "departements",
+    "description": "Vignobles d'Armagnac",
+    "condition": "Enregistrer au moins une course dans le département Gers (32)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_32.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "32",
+    "symbole": "Vignobles d'Armagnac"
+  },
+  {
+    "id": "dept_33",
+    "name": "Gironde",
+    "collection": "departements",
+    "description": "Dune du Pilat",
+    "condition": "Enregistrer au moins une course dans le département Gironde (33)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_33.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "33",
+    "symbole": "Dune du Pilat"
+  },
+  {
+    "id": "dept_34",
+    "name": "Hérault",
+    "collection": "departements",
+    "description": "Cathédrale de Montpellier",
+    "condition": "Enregistrer au moins une course dans le département Hérault (34)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_34.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "34",
+    "symbole": "Cathédrale de Montpellier"
+  },
+  {
+    "id": "dept_35",
+    "name": "Ille-et-Vilaine",
+    "collection": "departements",
+    "description": "Remparts de Saint-Malo",
+    "condition": "Enregistrer au moins une course dans le département Ille-et-Vilaine (35)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_35.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "35",
+    "symbole": "Remparts de Saint-Malo"
+  },
+  {
+    "id": "dept_36",
+    "name": "Indre",
+    "collection": "departements",
+    "description": "Château de Valençay",
+    "condition": "Enregistrer au moins une course dans le département Indre (36)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_36.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "36",
+    "symbole": "Château de Valençay"
+  },
+  {
+    "id": "dept_37",
+    "name": "Indre-et-Loire",
+    "collection": "departements",
+    "description": "Château de Chenonceau",
+    "condition": "Enregistrer au moins une course dans le département Indre-et-Loire (37)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_37.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "37",
+    "symbole": "Château de Chenonceau"
+  },
+  {
+    "id": "dept_38",
+    "name": "Isère",
+    "collection": "departements",
+    "description": "Massif de la Chartreuse",
+    "condition": "Enregistrer au moins une course dans le département Isère (38)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_38.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "38",
+    "symbole": "Massif de la Chartreuse"
+  },
+  {
+    "id": "dept_39",
+    "name": "Jura",
+    "collection": "departements",
+    "description": "Cascades du Hérisson",
+    "condition": "Enregistrer au moins une course dans le département Jura (39)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_39.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "39",
+    "symbole": "Cascades du Hérisson"
+  },
+  {
+    "id": "dept_40",
+    "name": "Landes",
+    "collection": "departements",
+    "description": "Dunes du littoral landais",
+    "condition": "Enregistrer au moins une course dans le département Landes (40)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_40.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "40",
+    "symbole": "Dunes du littoral landais"
+  },
+  {
+    "id": "dept_41",
+    "name": "Loir-et-Cher",
+    "collection": "departements",
+    "description": "Château de Chambord",
+    "condition": "Enregistrer au moins une course dans le département Loir-et-Cher (41)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_41.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "41",
+    "symbole": "Château de Chambord"
+  },
+  {
+    "id": "dept_42",
+    "name": "Loire",
+    "collection": "departements",
+    "description": "Gorges de la Loire",
+    "condition": "Enregistrer au moins une course dans le département Loire (42)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_42.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "42",
+    "symbole": "Gorges de la Loire"
+  },
+  {
+    "id": "dept_43",
+    "name": "Haute-Loire",
+    "collection": "departements",
+    "description": "Rocher Saint-Michel d'Aiguilhe",
+    "condition": "Enregistrer au moins une course dans le département Haute-Loire (43)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_43.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "43",
+    "symbole": "Rocher Saint-Michel d'Aiguilhe"
+  },
+  {
+    "id": "dept_44",
+    "name": "Loire-Atlantique",
+    "collection": "departements",
+    "description": "Château des ducs de Bretagne",
+    "condition": "Enregistrer au moins une course dans le département Loire-Atlantique (44)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_44.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "44",
+    "symbole": "Château des ducs de Bretagne"
+  },
+  {
+    "id": "dept_45",
+    "name": "Loiret",
+    "collection": "departements",
+    "description": "Cathédrale d'Orléans",
+    "condition": "Enregistrer au moins une course dans le département Loiret (45)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_45.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "45",
+    "symbole": "Cathédrale d'Orléans"
+  },
+  {
+    "id": "dept_46",
+    "name": "Lot",
+    "collection": "departements",
+    "description": "Cirque de Cingle",
+    "condition": "Enregistrer au moins une course dans le département Lot (46)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_46.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "46",
+    "symbole": "Cirque de Cingle"
+  },
+  {
+    "id": "dept_47",
+    "name": "Lot-et-Garonne",
+    "collection": "departements",
+    "description": "Bastides du Lot-et-Garonne",
+    "condition": "Enregistrer au moins une course dans le département Lot-et-Garonne (47)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_47.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "47",
+    "symbole": "Bastides du Lot-et-Garonne"
+  },
+  {
+    "id": "dept_48",
+    "name": "Lozère",
+    "collection": "departements",
+    "description": "Mont Lozère",
+    "condition": "Enregistrer au moins une course dans le département Lozère (48)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_48.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "48",
+    "symbole": "Mont Lozère"
+  },
+  {
+    "id": "dept_49",
+    "name": "Maine-et-Loire",
+    "collection": "departements",
+    "description": "Château d'Angers",
+    "condition": "Enregistrer au moins une course dans le département Maine-et-Loire (49)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_49.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "49",
+    "symbole": "Château d'Angers"
+  },
+  {
+    "id": "dept_50",
+    "name": "Manche",
+    "collection": "departements",
+    "description": "Mont-Saint-Michel",
+    "condition": "Enregistrer au moins une course dans le département Manche (50)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_50.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "50",
+    "symbole": "Mont-Saint-Michel"
+  },
+  {
+    "id": "dept_51",
+    "name": "Marne",
+    "collection": "departements",
+    "description": "Cathédrale de Reims",
+    "condition": "Enregistrer au moins une course dans le département Marne (51)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_51.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "51",
+    "symbole": "Cathédrale de Reims"
+  },
+  {
+    "id": "dept_52",
+    "name": "Haute-Marne",
+    "collection": "departements",
+    "description": "Lac du Der",
+    "condition": "Enregistrer au moins une course dans le département Haute-Marne (52)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_52.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "52",
+    "symbole": "Lac du Der"
+  },
+  {
+    "id": "dept_53",
+    "name": "Mayenne",
+    "collection": "departements",
+    "description": "Château de Mayenne",
+    "condition": "Enregistrer au moins une course dans le département Mayenne (53)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_53.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "53",
+    "symbole": "Château de Mayenne"
+  },
+  {
+    "id": "dept_54",
+    "name": "Meurthe-et-Moselle",
+    "collection": "departements",
+    "description": "Place Stanislas",
+    "condition": "Enregistrer au moins une course dans le département Meurthe-et-Moselle (54)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_54.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "54",
+    "symbole": "Place Stanislas"
+  },
+  {
+    "id": "dept_55",
+    "name": "Meuse",
+    "collection": "departements",
+    "description": "Champ de bataille de Verdun",
+    "condition": "Enregistrer au moins une course dans le département Meuse (55)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_55.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "55",
+    "symbole": "Champ de bataille de Verdun"
+  },
+  {
+    "id": "dept_56",
+    "name": "Morbihan",
+    "collection": "departements",
+    "description": "Alignements de Carnac",
+    "condition": "Enregistrer au moins une course dans le département Morbihan (56)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_56.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "56",
+    "symbole": "Alignements de Carnac"
+  },
+  {
+    "id": "dept_57",
+    "name": "Moselle",
+    "collection": "departements",
+    "description": "Cathédrale de Metz",
+    "condition": "Enregistrer au moins une course dans le département Moselle (57)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_57.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "57",
+    "symbole": "Cathédrale de Metz"
+  },
+  {
+    "id": "dept_58",
+    "name": "Nièvre",
+    "collection": "departements",
+    "description": "Basilique de Vézelay",
+    "condition": "Enregistrer au moins une course dans le département Nièvre (58)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_58.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "58",
+    "symbole": "Basilique de Vézelay"
+  },
+  {
+    "id": "dept_59",
+    "name": "Nord",
+    "collection": "departements",
+    "description": "Beffroi de Lille",
+    "condition": "Enregistrer au moins une course dans le département Nord (59)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_59.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "59",
+    "symbole": "Beffroi de Lille"
+  },
+  {
+    "id": "dept_60",
+    "name": "Oise",
+    "collection": "departements",
+    "description": "Château de Chantilly",
+    "condition": "Enregistrer au moins une course dans le département Oise (60)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_60.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "60",
+    "symbole": "Château de Chantilly"
+  },
+  {
+    "id": "dept_61",
+    "name": "Orne",
+    "collection": "departements",
+    "description": "Haras du Pin",
+    "condition": "Enregistrer au moins une course dans le département Orne (61)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_61.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "61",
+    "symbole": "Haras du Pin"
+  },
+  {
+    "id": "dept_62",
+    "name": "Pas-de-Calais",
+    "collection": "departements",
+    "description": "Cap Blanc-Nez",
+    "condition": "Enregistrer au moins une course dans le département Pas-de-Calais (62)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_62.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "62",
+    "symbole": "Cap Blanc-Nez"
+  },
+  {
+    "id": "dept_63",
+    "name": "Puy-de-Dôme",
+    "collection": "departements",
+    "description": "Puy de Dôme",
+    "condition": "Enregistrer au moins une course dans le département Puy-de-Dôme (63)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_63.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "63",
+    "symbole": "Puy de Dôme"
+  },
+  {
+    "id": "dept_64",
+    "name": "Pyrénées-Atlantiques",
+    "collection": "departements",
+    "description": "Rocher de la Vierge, Biarritz",
+    "condition": "Enregistrer au moins une course dans le département Pyrénées-Atlantiques (64)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_64.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "64",
+    "symbole": "Rocher de la Vierge, Biarritz"
+  },
+  {
+    "id": "dept_65",
+    "name": "Hautes-Pyrénées",
+    "collection": "departements",
+    "description": "Cirque de Gavarnie",
+    "condition": "Enregistrer au moins une course dans le département Hautes-Pyrénées (65)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_65.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "65",
+    "symbole": "Cirque de Gavarnie"
+  },
+  {
+    "id": "dept_66",
+    "name": "Pyrénées-Orientales",
+    "collection": "departements",
+    "description": "Massif du Canigou",
+    "condition": "Enregistrer au moins une course dans le département Pyrénées-Orientales (66)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_66.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "66",
+    "symbole": "Massif du Canigou"
+  },
+  {
+    "id": "dept_67",
+    "name": "Bas-Rhin",
+    "collection": "departements",
+    "description": "Cathédrale de Strasbourg",
+    "condition": "Enregistrer au moins une course dans le département Bas-Rhin (67)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_67.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "67",
+    "symbole": "Cathédrale de Strasbourg"
+  },
+  {
+    "id": "dept_68",
+    "name": "Haut-Rhin",
+    "collection": "departements",
+    "description": "Colmar et ses canaux",
+    "condition": "Enregistrer au moins une course dans le département Haut-Rhin (68)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_68.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "68",
+    "symbole": "Colmar et ses canaux"
+  },
+  {
+    "id": "dept_69",
+    "name": "Rhône",
+    "collection": "departements",
+    "description": "Basilique de Fourvière",
+    "condition": "Enregistrer au moins une course dans le département Rhône (69)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_69.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "69",
+    "symbole": "Basilique de Fourvière"
+  },
+  {
+    "id": "dept_70",
+    "name": "Haute-Saône",
+    "collection": "departements",
+    "description": "Vosges saônoises",
+    "condition": "Enregistrer au moins une course dans le département Haute-Saône (70)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_70.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "70",
+    "symbole": "Vosges saônoises"
+  },
+  {
+    "id": "dept_71",
+    "name": "Saône-et-Loire",
+    "collection": "departements",
+    "description": "Roche de Solutré et vignobles",
+    "condition": "Enregistrer au moins une course dans le département Saône-et-Loire (71)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_71.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "71",
+    "symbole": "Roche de Solutré et vignobles"
+  },
+  {
+    "id": "dept_72",
+    "name": "Sarthe",
+    "collection": "departements",
+    "description": "Cathédrale du Mans",
+    "condition": "Enregistrer au moins une course dans le département Sarthe (72)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_72.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "72",
+    "symbole": "Cathédrale du Mans"
+  },
+  {
+    "id": "dept_73",
+    "name": "Savoie",
+    "collection": "departements",
+    "description": "Massif de la Vanoise",
+    "condition": "Enregistrer au moins une course dans le département Savoie (73)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_73.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "73",
+    "symbole": "Massif de la Vanoise"
+  },
+  {
+    "id": "dept_74",
+    "name": "Haute-Savoie",
+    "collection": "departements",
+    "description": "Mont Blanc",
+    "condition": "Enregistrer au moins une course dans le département Haute-Savoie (74)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_74.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "74",
+    "symbole": "Mont Blanc"
+  },
+  {
+    "id": "dept_75",
+    "name": "Paris",
+    "collection": "departements",
+    "description": "Tour Eiffel",
+    "condition": "Enregistrer au moins une course dans le département Paris (75)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_75.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "75",
+    "symbole": "Tour Eiffel"
+  },
+  {
+    "id": "dept_76",
+    "name": "Seine-Maritime",
+    "collection": "departements",
+    "description": "Falaises d'Étretat",
+    "condition": "Enregistrer au moins une course dans le département Seine-Maritime (76)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_76.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "76",
+    "symbole": "Falaises d'Étretat"
+  },
+  {
+    "id": "dept_77",
+    "name": "Seine-et-Marne",
+    "collection": "departements",
+    "description": "Château de Fontainebleau",
+    "condition": "Enregistrer au moins une course dans le département Seine-et-Marne (77)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_77.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "77",
+    "symbole": "Château de Fontainebleau"
+  },
+  {
+    "id": "dept_78",
+    "name": "Yvelines",
+    "collection": "departements",
+    "description": "Château de Versailles",
+    "condition": "Enregistrer au moins une course dans le département Yvelines (78)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_78.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "78",
+    "symbole": "Château de Versailles"
+  },
+  {
+    "id": "dept_79",
+    "name": "Deux-Sèvres",
+    "collection": "departements",
+    "description": "Marais poitevin",
+    "condition": "Enregistrer au moins une course dans le département Deux-Sèvres (79)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_79.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "79",
+    "symbole": "Marais poitevin"
+  },
+  {
+    "id": "dept_80",
+    "name": "Somme",
+    "collection": "departements",
+    "description": "Baie de Somme",
+    "condition": "Enregistrer au moins une course dans le département Somme (80)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_80.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "80",
+    "symbole": "Baie de Somme"
+  },
+  {
+    "id": "dept_81",
+    "name": "Tarn",
+    "collection": "departements",
+    "description": "Cathédrale d'Albi",
+    "condition": "Enregistrer au moins une course dans le département Tarn (81)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_81.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "81",
+    "symbole": "Cathédrale d'Albi"
+  },
+  {
+    "id": "dept_82",
+    "name": "Tarn-et-Garonne",
+    "collection": "departements",
+    "description": "Pont-Canal du Cacor",
+    "condition": "Enregistrer au moins une course dans le département Tarn-et-Garonne (82)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_82.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "82",
+    "symbole": "Pont-Canal du Cacor"
+  },
+  {
+    "id": "dept_83",
+    "name": "Var",
+    "collection": "departements",
+    "description": "Calanques de Cassis",
+    "condition": "Enregistrer au moins une course dans le département Var (83)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_83.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "83",
+    "symbole": "Calanques de Cassis"
+  },
+  {
+    "id": "dept_84",
+    "name": "Vaucluse",
+    "collection": "departements",
+    "description": "Palais des Papes d'Avignon",
+    "condition": "Enregistrer au moins une course dans le département Vaucluse (84)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_84.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "84",
+    "symbole": "Palais des Papes d'Avignon"
+  },
+  {
+    "id": "dept_85",
+    "name": "Vendée",
+    "collection": "departements",
+    "description": "Puy du Fou",
+    "condition": "Enregistrer au moins une course dans le département Vendée (85)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_85.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "85",
+    "symbole": "Puy du Fou"
+  },
+  {
+    "id": "dept_86",
+    "name": "Vienne",
+    "collection": "departements",
+    "description": "Futuroscope",
+    "condition": "Enregistrer au moins une course dans le département Vienne (86)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_86.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "86",
+    "symbole": "Futuroscope"
+  },
+  {
+    "id": "dept_87",
+    "name": "Haute-Vienne",
+    "collection": "departements",
+    "description": "Cathédrale de Limoges",
+    "condition": "Enregistrer au moins une course dans le département Haute-Vienne (87)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_87.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "87",
+    "symbole": "Cathédrale de Limoges"
+  },
+  {
+    "id": "dept_88",
+    "name": "Vosges",
+    "collection": "departements",
+    "description": "Massif des Vosges",
+    "condition": "Enregistrer au moins une course dans le département Vosges (88)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_88.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "88",
+    "symbole": "Massif des Vosges"
+  },
+  {
+    "id": "dept_89",
+    "name": "Yonne",
+    "collection": "departements",
+    "description": "Basilique de Vézelay",
+    "condition": "Enregistrer au moins une course dans le département Yonne (89)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_89.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "89",
+    "symbole": "Basilique de Vézelay"
+  },
+  {
+    "id": "dept_90",
+    "name": "Territoire de Belfort",
+    "collection": "departements",
+    "description": "Lion de Belfort",
+    "condition": "Enregistrer au moins une course dans le département Territoire de Belfort (90)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_90.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "90",
+    "symbole": "Lion de Belfort"
+  },
+  {
+    "id": "dept_91",
+    "name": "Essonne",
+    "collection": "departements",
+    "description": "Château de Courances",
+    "condition": "Enregistrer au moins une course dans le département Essonne (91)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_91.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "91",
+    "symbole": "Château de Courances"
+  },
+  {
+    "id": "dept_92",
+    "name": "Hauts-de-Seine",
+    "collection": "departements",
+    "description": "Grande Arche de la Défense",
+    "condition": "Enregistrer au moins une course dans le département Hauts-de-Seine (92)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_92.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "92",
+    "symbole": "Grande Arche de la Défense"
+  },
+  {
+    "id": "dept_93",
+    "name": "Seine-Saint-Denis",
+    "collection": "departements",
+    "description": "Basilique de Saint-Denis",
+    "condition": "Enregistrer au moins une course dans le département Seine-Saint-Denis (93)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_93.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "93",
+    "symbole": "Basilique de Saint-Denis"
+  },
+  {
+    "id": "dept_94",
+    "name": "Val-de-Marne",
+    "collection": "departements",
+    "description": "Château de Vincennes",
+    "condition": "Enregistrer au moins une course dans le département Val-de-Marne (94)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_94.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "94",
+    "symbole": "Château de Vincennes"
+  },
+  {
+    "id": "dept_95",
+    "name": "Val-d'Oise",
+    "collection": "departements",
+    "description": "Château d'Auvers-sur-Oise",
+    "condition": "Enregistrer au moins une course dans le département Val-d'Oise (95)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_95.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "95",
+    "symbole": "Château d'Auvers-sur-Oise"
+  },
+  {
+    "id": "dept_971",
+    "name": "Guadeloupe",
+    "collection": "departements",
+    "description": "Volcan de la Soufrière",
+    "condition": "Enregistrer au moins une course dans le département Guadeloupe (971)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_971.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "971",
+    "symbole": "Volcan de la Soufrière"
+  },
+  {
+    "id": "dept_972",
+    "name": "Martinique",
+    "collection": "departements",
+    "description": "Montagne Pelée",
+    "condition": "Enregistrer au moins une course dans le département Martinique (972)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_972.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "972",
+    "symbole": "Montagne Pelée"
+  },
+  {
+    "id": "dept_973",
+    "name": "Guyane",
+    "collection": "departements",
+    "description": "Forêt amazonienne",
+    "condition": "Enregistrer au moins une course dans le département Guyane (973)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_973.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "973",
+    "symbole": "Forêt amazonienne"
+  },
+  {
+    "id": "dept_974",
+    "name": "La Réunion",
+    "collection": "departements",
+    "description": "Piton de la Fournaise",
+    "condition": "Enregistrer au moins une course dans le département La Réunion (974)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_974.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "974",
+    "symbole": "Piton de la Fournaise"
+  },
+  {
+    "id": "dept_976",
+    "name": "Mayotte",
+    "collection": "departements",
+    "description": "Lagon de Mayotte",
+    "condition": "Enregistrer au moins une course dans le département Mayotte (976)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/dept_976.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "deptCode": "976",
+    "symbole": "Lagon de Mayotte"
+  },
+  {
+    "id": "country_01",
+    "name": "France",
+    "collection": "pays",
+    "description": "Tour Eiffel",
+    "condition": "Enregistrer au moins une course en France",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_01.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "France",
+    "symbole": "Tour Eiffel"
+  },
+  {
+    "id": "country_02",
+    "name": "Italie",
+    "collection": "pays",
+    "description": "Colisée",
+    "condition": "Enregistrer au moins une course en Italie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_02.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Italie",
+    "symbole": "Colisée"
+  },
+  {
+    "id": "country_03",
+    "name": "Espagne",
+    "collection": "pays",
+    "description": "Sagrada Família",
+    "condition": "Enregistrer au moins une course en Espagne",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_03.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Espagne",
+    "symbole": "Sagrada Família"
+  },
+  {
+    "id": "country_04",
+    "name": "Portugal",
+    "collection": "pays",
+    "description": "Tour de Belém",
+    "condition": "Enregistrer au moins une course en Portugal",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_04.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Portugal",
+    "symbole": "Tour de Belém"
+  },
+  {
+    "id": "country_05",
+    "name": "Allemagne",
+    "collection": "pays",
+    "description": "Porte de Brandebourg",
+    "condition": "Enregistrer au moins une course en Allemagne",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_05.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Allemagne",
+    "symbole": "Porte de Brandebourg"
+  },
+  {
+    "id": "country_06",
+    "name": "Belgique",
+    "collection": "pays",
+    "description": "Grand-Place de Bruxelles",
+    "condition": "Enregistrer au moins une course en Belgique",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_06.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Belgique",
+    "symbole": "Grand-Place de Bruxelles"
+  },
+  {
+    "id": "country_07",
+    "name": "Pays-Bas",
+    "collection": "pays",
+    "description": "Moulins de Kinderdijk",
+    "condition": "Enregistrer au moins une course en Pays-Bas",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_07.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Pays-Bas",
+    "symbole": "Moulins de Kinderdijk"
+  },
+  {
+    "id": "country_08",
+    "name": "Luxembourg",
+    "collection": "pays",
+    "description": "Vieille ville fortifiée",
+    "condition": "Enregistrer au moins une course en Luxembourg",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_08.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Luxembourg",
+    "symbole": "Vieille ville fortifiée"
+  },
+  {
+    "id": "country_09",
+    "name": "Royaume-Uni",
+    "collection": "pays",
+    "description": "Big Ben",
+    "condition": "Enregistrer au moins une course en Royaume-Uni",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_09.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Royaume-Uni",
+    "symbole": "Big Ben"
+  },
+  {
+    "id": "country_10",
+    "name": "Irlande",
+    "collection": "pays",
+    "description": "Falaises de Moher",
+    "condition": "Enregistrer au moins une course en Irlande",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_10.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Irlande",
+    "symbole": "Falaises de Moher"
+  },
+  {
+    "id": "country_11",
+    "name": "Suisse",
+    "collection": "pays",
+    "description": "Cervin",
+    "condition": "Enregistrer au moins une course en Suisse",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_11.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Suisse",
+    "symbole": "Cervin"
+  },
+  {
+    "id": "country_12",
+    "name": "Autriche",
+    "collection": "pays",
+    "description": "Palais du Belvédère",
+    "condition": "Enregistrer au moins une course en Autriche",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_12.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Autriche",
+    "symbole": "Palais du Belvédère"
+  },
+  {
+    "id": "country_13",
+    "name": "Norvège",
+    "collection": "pays",
+    "description": "Fjord",
+    "condition": "Enregistrer au moins une course en Norvège",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_13.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Norvège",
+    "symbole": "Fjord"
+  },
+  {
+    "id": "country_14",
+    "name": "Suède",
+    "collection": "pays",
+    "description": "Vieille ville de Stockholm",
+    "condition": "Enregistrer au moins une course en Suède",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_14.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Suède",
+    "symbole": "Vieille ville de Stockholm"
+  },
+  {
+    "id": "country_15",
+    "name": "Finlande",
+    "collection": "pays",
+    "description": "Aurores boréales",
+    "condition": "Enregistrer au moins une course en Finlande",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_15.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Finlande",
+    "symbole": "Aurores boréales"
+  },
+  {
+    "id": "country_16",
+    "name": "Danemark",
+    "collection": "pays",
+    "description": "Petite Sirène",
+    "condition": "Enregistrer au moins une course en Danemark",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_16.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Danemark",
+    "symbole": "Petite Sirène"
+  },
+  {
+    "id": "country_17",
+    "name": "Islande",
+    "collection": "pays",
+    "description": "Volcan et cascade",
+    "condition": "Enregistrer au moins une course en Islande",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_17.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Islande",
+    "symbole": "Volcan et cascade"
+  },
+  {
+    "id": "country_18",
+    "name": "Pologne",
+    "collection": "pays",
+    "description": "Vieille ville de Cracovie",
+    "condition": "Enregistrer au moins une course en Pologne",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_18.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Pologne",
+    "symbole": "Vieille ville de Cracovie"
+  },
+  {
+    "id": "country_19",
+    "name": "République tchèque",
+    "collection": "pays",
+    "description": "Pont Charles",
+    "condition": "Enregistrer au moins une course en République tchèque",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_19.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "République tchèque",
+    "symbole": "Pont Charles"
+  },
+  {
+    "id": "country_20",
+    "name": "Slovaquie",
+    "collection": "pays",
+    "description": "Château de Bratislava",
+    "condition": "Enregistrer au moins une course en Slovaquie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_20.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Slovaquie",
+    "symbole": "Château de Bratislava"
+  },
+  {
+    "id": "country_21",
+    "name": "Hongrie",
+    "collection": "pays",
+    "description": "Parlement de Budapest",
+    "condition": "Enregistrer au moins une course en Hongrie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_21.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Hongrie",
+    "symbole": "Parlement de Budapest"
+  },
+  {
+    "id": "country_22",
+    "name": "Roumanie",
+    "collection": "pays",
+    "description": "Château de Bran",
+    "condition": "Enregistrer au moins une course en Roumanie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_22.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Roumanie",
+    "symbole": "Château de Bran"
+  },
+  {
+    "id": "country_23",
+    "name": "Bulgarie",
+    "collection": "pays",
+    "description": "Monastère de Rila",
+    "condition": "Enregistrer au moins une course en Bulgarie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_23.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Bulgarie",
+    "symbole": "Monastère de Rila"
+  },
+  {
+    "id": "country_24",
+    "name": "Grèce",
+    "collection": "pays",
+    "description": "Parthénon",
+    "condition": "Enregistrer au moins une course en Grèce",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_24.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Grèce",
+    "symbole": "Parthénon"
+  },
+  {
+    "id": "country_25",
+    "name": "Chypre",
+    "collection": "pays",
+    "description": "Rochers d'Aphrodite",
+    "condition": "Enregistrer au moins une course en Chypre",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_25.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Chypre",
+    "symbole": "Rochers d'Aphrodite"
+  },
+  {
+    "id": "country_26",
+    "name": "Croatie",
+    "collection": "pays",
+    "description": "Remparts de Dubrovnik",
+    "condition": "Enregistrer au moins une course en Croatie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_26.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Croatie",
+    "symbole": "Remparts de Dubrovnik"
+  },
+  {
+    "id": "country_27",
+    "name": "Slovénie",
+    "collection": "pays",
+    "description": "Lac de Bled",
+    "condition": "Enregistrer au moins une course en Slovénie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_27.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Slovénie",
+    "symbole": "Lac de Bled"
+  },
+  {
+    "id": "country_28",
+    "name": "Bosnie-Herzégovine",
+    "collection": "pays",
+    "description": "Vieux pont de Mostar",
+    "condition": "Enregistrer au moins une course en Bosnie-Herzégovine",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_28.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Bosnie-Herzégovine",
+    "symbole": "Vieux pont de Mostar"
+  },
+  {
+    "id": "country_29",
+    "name": "Serbie",
+    "collection": "pays",
+    "description": "Forteresse de Belgrade",
+    "condition": "Enregistrer au moins une course en Serbie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_29.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Serbie",
+    "symbole": "Forteresse de Belgrade"
+  },
+  {
+    "id": "country_30",
+    "name": "Monténégro",
+    "collection": "pays",
+    "description": "Baie de Kotor",
+    "condition": "Enregistrer au moins une course en Monténégro",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_30.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Monténégro",
+    "symbole": "Baie de Kotor"
+  },
+  {
+    "id": "country_31",
+    "name": "Macédoine du Nord",
+    "collection": "pays",
+    "description": "Lac d'Ohrid",
+    "condition": "Enregistrer au moins une course en Macédoine du Nord",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_31.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Macédoine du Nord",
+    "symbole": "Lac d'Ohrid"
+  },
+  {
+    "id": "country_32",
+    "name": "Albanie",
+    "collection": "pays",
+    "description": "Riviera albanaise",
+    "condition": "Enregistrer au moins une course en Albanie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_32.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Albanie",
+    "symbole": "Riviera albanaise"
+  },
+  {
+    "id": "country_33",
+    "name": "Estonie",
+    "collection": "pays",
+    "description": "Vieille ville de Tallinn",
+    "condition": "Enregistrer au moins une course en Estonie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_33.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Estonie",
+    "symbole": "Vieille ville de Tallinn"
+  },
+  {
+    "id": "country_34",
+    "name": "Lettonie",
+    "collection": "pays",
+    "description": "Vieille ville de Riga",
+    "condition": "Enregistrer au moins une course en Lettonie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_34.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Lettonie",
+    "symbole": "Vieille ville de Riga"
+  },
+  {
+    "id": "country_35",
+    "name": "Lituanie",
+    "collection": "pays",
+    "description": "Colline des Croix",
+    "condition": "Enregistrer au moins une course en Lituanie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_35.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Lituanie",
+    "symbole": "Colline des Croix"
+  },
+  {
+    "id": "country_36",
+    "name": "Ukraine",
+    "collection": "pays",
+    "description": "Cathédrale Sainte-Sophie",
+    "condition": "Enregistrer au moins une course en Ukraine",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_36.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Ukraine",
+    "symbole": "Cathédrale Sainte-Sophie"
+  },
+  {
+    "id": "country_37",
+    "name": "Moldavie",
+    "collection": "pays",
+    "description": "Monastère d'Orheiul Vechi",
+    "condition": "Enregistrer au moins une course en Moldavie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_37.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Moldavie",
+    "symbole": "Monastère d'Orheiul Vechi"
+  },
+  {
+    "id": "country_38",
+    "name": "Biélorussie",
+    "collection": "pays",
+    "description": "Château de Mir",
+    "condition": "Enregistrer au moins une course en Biélorussie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_38.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Biélorussie",
+    "symbole": "Château de Mir"
+  },
+  {
+    "id": "country_39",
+    "name": "Russie",
+    "collection": "pays",
+    "description": "Cathédrale Saint-Basile",
+    "condition": "Enregistrer au moins une course en Russie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_39.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Russie",
+    "symbole": "Cathédrale Saint-Basile"
+  },
+  {
+    "id": "country_40",
+    "name": "Turquie",
+    "collection": "pays",
+    "description": "Sainte-Sophie d'Istanbul",
+    "condition": "Enregistrer au moins une course en Turquie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_40.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Turquie",
+    "symbole": "Sainte-Sophie d'Istanbul"
+  },
+  {
+    "id": "country_41",
+    "name": "Malte",
+    "collection": "pays",
+    "description": "La Valette",
+    "condition": "Enregistrer au moins une course en Malte",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_41.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Malte",
+    "symbole": "La Valette"
+  },
+  {
+    "id": "country_42",
+    "name": "Andorre",
+    "collection": "pays",
+    "description": "Vallées pyrénéennes",
+    "condition": "Enregistrer au moins une course en Andorre",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_42.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Andorre",
+    "symbole": "Vallées pyrénéennes"
+  },
+  {
+    "id": "country_43",
+    "name": "Monaco",
+    "collection": "pays",
+    "description": "Rocher de Monaco",
+    "condition": "Enregistrer au moins une course en Monaco",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_43.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Monaco",
+    "symbole": "Rocher de Monaco"
+  },
+  {
+    "id": "country_44",
+    "name": "Saint-Marin",
+    "collection": "pays",
+    "description": "Mont Titano",
+    "condition": "Enregistrer au moins une course en Saint-Marin",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_44.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Saint-Marin",
+    "symbole": "Mont Titano"
+  },
+  {
+    "id": "country_45",
+    "name": "Liechtenstein",
+    "collection": "pays",
+    "description": "Château de Vaduz",
+    "condition": "Enregistrer au moins une course en Liechtenstein",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_45.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Liechtenstein",
+    "symbole": "Château de Vaduz"
+  },
+  {
+    "id": "country_46",
+    "name": "Vatican",
+    "collection": "pays",
+    "description": "Basilique Saint-Pierre",
+    "condition": "Enregistrer au moins une course en Vatican",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_46.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Vatican",
+    "symbole": "Basilique Saint-Pierre"
+  },
+  {
+    "id": "country_47",
+    "name": "Géorgie",
+    "collection": "pays",
+    "description": "Monastère de Guérati",
+    "condition": "Enregistrer au moins une course en Géorgie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_47.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Géorgie",
+    "symbole": "Monastère de Guérati"
+  },
+  {
+    "id": "country_48",
+    "name": "Arménie",
+    "collection": "pays",
+    "description": "Monastère de Guégard",
+    "condition": "Enregistrer au moins une course en Arménie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_48.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Arménie",
+    "symbole": "Monastère de Guégard"
+  },
+  {
+    "id": "country_49",
+    "name": "Azerbaïdjan",
+    "collection": "pays",
+    "description": "Tours de la vieille ville de Bakou",
+    "condition": "Enregistrer au moins une course en Azerbaïdjan",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_49.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Azerbaïdjan",
+    "symbole": "Tours de la vieille ville de Bakou"
+  },
+  {
+    "id": "country_50",
+    "name": "Kosovo",
+    "collection": "pays",
+    "description": "Monastère de Visoki Dečani",
+    "condition": "Enregistrer au moins une course en Kosovo",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/country_50.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "country": "Kosovo",
+    "symbole": "Monastère de Visoki Dečani"
+  },
+  {
+    "id": "day_new_year",
+    "name": "Premier départ",
+    "collection": "jours_particuliers",
+    "description": "Courir le 1er janvier",
+    "condition": "Courir le 1er janvier",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_new_year.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "01-01"
+  },
+  {
+    "id": "day_valentine",
+    "name": "Saint-Valentin",
+    "collection": "jours_particuliers",
+    "description": "Courir le 14 février",
+    "condition": "Courir le 14 février",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_valentine.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "02-14"
+  },
+  {
+    "id": "day_women_rights",
+    "name": "Droits des femmes",
+    "collection": "jours_particuliers",
+    "description": "Courir le 8 mars",
+    "condition": "Courir le 8 mars",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_women_rights.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "03-08"
+  },
+  {
+    "id": "day_spring",
+    "name": "Arrivée du printemps",
+    "collection": "jours_particuliers",
+    "description": "Courir vers l'équinoxe de printemps (date configurable)",
+    "condition": "Courir vers l'équinoxe de printemps (date configurable)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_spring.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "03-20"
+  },
+  {
+    "id": "day_april_fool",
+    "name": "Poisson d'avril",
+    "collection": "jours_particuliers",
+    "description": "Courir le 1er avril",
+    "condition": "Courir le 1er avril",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_april_fool.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "04-01"
+  },
+  {
+    "id": "day_labour",
+    "name": "Fête du travail",
+    "collection": "jours_particuliers",
+    "description": "Courir le 1er mai",
+    "condition": "Courir le 1er mai",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_labour.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "05-01"
+  },
+  {
+    "id": "day_victory_1945",
+    "name": "Victoire 1945",
+    "collection": "jours_particuliers",
+    "description": "Courir le 8 mai",
+    "condition": "Courir le 8 mai",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_victory_1945.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "05-08"
+  },
+  {
+    "id": "day_music",
+    "name": "Fête de la musique",
+    "collection": "jours_particuliers",
+    "description": "Courir le 21 juin",
+    "condition": "Courir le 21 juin",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_music.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "06-21"
+  },
+  {
+    "id": "day_bastille",
+    "name": "Fête nationale",
+    "collection": "jours_particuliers",
+    "description": "Courir le 14 juillet",
+    "condition": "Courir le 14 juillet",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_bastille.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "07-14"
+  },
+  {
+    "id": "day_assumption",
+    "name": "Assomption",
+    "collection": "jours_particuliers",
+    "description": "Courir le 15 août",
+    "condition": "Courir le 15 août",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_assumption.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "08-15"
+  },
+  {
+    "id": "day_september",
+    "name": "Rentrée",
+    "collection": "jours_particuliers",
+    "description": "Courir le 1er septembre",
+    "condition": "Courir le 1er septembre",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_september.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "09-01"
+  },
+  {
+    "id": "day_autumn",
+    "name": "Arrivée de l'automne",
+    "collection": "jours_particuliers",
+    "description": "Courir vers l'équinoxe d'automne (date configurable)",
+    "condition": "Courir vers l'équinoxe d'automne (date configurable)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_autumn.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "09-22"
+  },
+  {
+    "id": "day_halloween",
+    "name": "Halloween",
+    "collection": "jours_particuliers",
+    "description": "Courir le 31 octobre",
+    "condition": "Courir le 31 octobre",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_halloween.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "10-31"
+  },
+  {
+    "id": "day_armistice",
+    "name": "Armistice 1918",
+    "collection": "jours_particuliers",
+    "description": "Courir le 11 novembre",
+    "condition": "Courir le 11 novembre",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_armistice.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "11-11"
+  },
+  {
+    "id": "day_winter",
+    "name": "Arrivée de l'hiver",
+    "collection": "jours_particuliers",
+    "description": "Courir vers le solstice d'hiver (date configurable)",
+    "condition": "Courir vers le solstice d'hiver (date configurable)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_winter.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "12-21"
+  },
+  {
+    "id": "day_christmas_eve",
+    "name": "Veille de Noël",
+    "collection": "jours_particuliers",
+    "description": "Courir le 24 décembre",
+    "condition": "Courir le 24 décembre",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_christmas_eve.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "12-24"
+  },
+  {
+    "id": "day_christmas",
+    "name": "Noël",
+    "collection": "jours_particuliers",
+    "description": "Courir le 25 décembre",
+    "condition": "Courir le 25 décembre",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_christmas.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "12-25"
+  },
+  {
+    "id": "day_new_year_eve",
+    "name": "Réveillon",
+    "collection": "jours_particuliers",
+    "description": "Courir le 31 décembre",
+    "condition": "Courir le 31 décembre",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_new_year_eve.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "12-31"
+  },
+  {
+    "id": "day_birthday",
+    "name": "Anniversaire",
+    "collection": "jours_particuliers",
+    "description": "Courir le jour de son anniversaire (date à configurer)",
+    "condition": "Courir le jour de son anniversaire (date à configurer)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_birthday.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "configurable"
+  },
+  {
+    "id": "day_leap",
+    "name": "29 février",
+    "collection": "jours_particuliers",
+    "description": "Badge ultra rare : courir un 29 février",
+    "condition": "Badge ultra rare : courir un 29 février",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_leap.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "02-29"
+  },
+  {
+    "id": "time_sunrise",
+    "name": "Lever du soleil",
+    "collection": "horaires",
+    "description": "Courir au moment du lever du soleil",
+    "condition": "Courir au moment du lever du soleil",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/time_sunrise.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "time_sunset",
+    "name": "Coucher du soleil",
+    "collection": "horaires",
+    "description": "Courir au moment du coucher du soleil",
+    "condition": "Courir au moment du coucher du soleil",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/time_sunset.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "time_midnight_runner",
+    "name": "Midnight Runner",
+    "collection": "horaires",
+    "description": "Course traversant minuit",
+    "condition": "Course traversant minuit",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/time_midnight_runner.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "time_night_owl",
+    "name": "Nuit blanche",
+    "collection": "horaires",
+    "description": "Course entièrement comprise entre 00h00 et 05h00",
+    "condition": "Course entièrement comprise entre 00h00 et 05h00",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/time_night_owl.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "time_summer_solstice",
+    "name": "Solstice d'été",
+    "collection": "horaires",
+    "description": "Courir le jour du solstice d'été (date configurable)",
+    "condition": "Courir le jour du solstice d'été (date configurable)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/time_summer_solstice.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "time_winter_solstice",
+    "name": "Solstice d'hiver",
+    "collection": "horaires",
+    "description": "Courir le jour du solstice d'hiver (date configurable)",
+    "condition": "Courir le jour du solstice d'hiver (date configurable)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/time_winter_solstice.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_rain",
+    "name": "Sous la pluie",
+    "collection": "meteo",
+    "description": "Courir sous la pluie",
+    "condition": "Courir sous la pluie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_rain.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_heavy_rain",
+    "name": "Pluie battante",
+    "collection": "meteo",
+    "description": "Courir sous une forte pluie",
+    "condition": "Courir sous une forte pluie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_heavy_rain.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_wind",
+    "name": "Vent de face",
+    "collection": "meteo",
+    "description": "Courir par vent important",
+    "condition": "Courir par vent important",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_wind.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_heat",
+    "name": "Chaleur intense",
+    "collection": "meteo",
+    "description": "Courir par forte chaleur (pensez à vous hydrater)",
+    "condition": "Courir par forte chaleur (pensez à vous hydrater)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_heat.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_cold",
+    "name": "Sous zéro",
+    "collection": "meteo",
+    "description": "Courir par température sous 0°C",
+    "condition": "Courir par température sous 0°C",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_cold.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_snow",
+    "name": "Sous la neige",
+    "collection": "meteo",
+    "description": "Courir sous la neige",
+    "condition": "Courir sous la neige",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_snow.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_fog",
+    "name": "Dans la brume",
+    "collection": "meteo",
+    "description": "Courir dans le brouillard",
+    "condition": "Courir dans le brouillard",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_fog.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_special",
+    "name": "Ciel particulier",
+    "collection": "meteo",
+    "description": "Courir dans des conditions météo remarquables",
+    "condition": "Courir dans des conditions météo remarquables",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_special.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_sunrise",
+    "name": "Aube",
+    "collection": "meteo",
+    "description": "Courir au lever du soleil",
+    "condition": "Courir au lever du soleil",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_sunrise.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_sunset",
+    "name": "Crépuscule",
+    "collection": "meteo",
+    "description": "Courir au coucher du soleil",
+    "condition": "Courir au coucher du soleil",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_sunset.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "cumulative_01",
+    "name": "Petite route",
+    "collection": "distance_cumulee",
+    "description": "Parcourir 25 km cumulés depuis le début",
+    "condition": "Distance totale ≥ 25 km",
+    "target": 25,
+    "unit": "km",
+    "image": "assets/badges/cumulative_01.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "route_to_planete"
+  },
+  {
+    "id": "cumulative_02",
+    "name": "Route de campagne",
+    "collection": "distance_cumulee",
+    "description": "Parcourir 50 km cumulés depuis le début",
+    "condition": "Distance totale ≥ 50 km",
+    "target": 50,
+    "unit": "km",
+    "image": "assets/badges/cumulative_02.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "route_to_planete"
+  },
+  {
+    "id": "cumulative_03",
+    "name": "Grande route",
+    "collection": "distance_cumulee",
+    "description": "Parcourir 100 km cumulés depuis le début",
+    "condition": "Distance totale ≥ 100 km",
+    "target": 100,
+    "unit": "km",
+    "image": "assets/badges/cumulative_03.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "route_to_planete"
+  },
+  {
+    "id": "cumulative_04",
+    "name": "Traversée régionale",
+    "collection": "distance_cumulee",
+    "description": "Parcourir 250 km cumulés depuis le début",
+    "condition": "Distance totale ≥ 250 km",
+    "target": 250,
+    "unit": "km",
+    "image": "assets/badges/cumulative_04.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "route_to_planete"
+  },
+  {
+    "id": "cumulative_05",
+    "name": "Voyage national",
+    "collection": "distance_cumulee",
+    "description": "Parcourir 500 km cumulés depuis le début",
+    "condition": "Distance totale ≥ 500 km",
+    "target": 500,
+    "unit": "km",
+    "image": "assets/badges/cumulative_05.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "route_to_planete"
+  },
+  {
+    "id": "cumulative_06",
+    "name": "Traversée continentale",
+    "collection": "distance_cumulee",
+    "description": "Parcourir 750 km cumulés depuis le début",
+    "condition": "Distance totale ≥ 750 km",
+    "target": 750,
+    "unit": "km",
+    "image": "assets/badges/cumulative_06.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "route_to_planete"
+  },
+  {
+    "id": "cumulative_07",
+    "name": "Odyssée",
+    "collection": "distance_cumulee",
+    "description": "Parcourir 1000 km cumulés depuis le début",
+    "condition": "Distance totale ≥ 1000 km",
+    "target": 1000,
+    "unit": "km",
+    "image": "assets/badges/cumulative_07.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "route_to_planete"
+  },
+  {
+    "id": "cumulative_08",
+    "name": "Tour du monde en modèle réduit",
+    "collection": "distance_cumulee",
+    "description": "Parcourir 2500 km cumulés depuis le début",
+    "condition": "Distance totale ≥ 2500 km",
+    "target": 2500,
+    "unit": "km",
+    "image": "assets/badges/cumulative_08.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "route_to_planete"
+  },
+  {
+    "id": "cumulative_09",
+    "name": "Exploration planétaire",
+    "collection": "distance_cumulee",
+    "description": "Parcourir 5000 km cumulés depuis le début",
+    "condition": "Distance totale ≥ 5000 km",
+    "target": 5000,
+    "unit": "km",
+    "image": "assets/badges/cumulative_09.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "route_to_planete"
+  },
+  {
+    "id": "cumulative_10",
+    "name": "Voyage interstellaire",
+    "collection": "distance_cumulee",
+    "description": "Parcourir 10000 km cumulés depuis le début",
+    "condition": "Distance totale ≥ 10000 km",
+    "target": 10000,
+    "unit": "km",
+    "image": "assets/badges/cumulative_10.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "theme": "route_to_planete"
+  },
+  {
+    "id": "official_first",
+    "name": "Premier dossard",
+    "collection": "courses_officielles",
+    "description": "Première course officielle",
+    "condition": "Première course officielle",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_first.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_first_5k",
+    "name": "Premier 5 km officiel",
+    "collection": "courses_officielles",
+    "description": "Premier 5 km en course officielle",
+    "condition": "Premier 5 km en course officielle",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_first_5k.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_first_10k",
+    "name": "Premier 10 km officiel",
+    "collection": "courses_officielles",
+    "description": "Premier 10 km en course officielle",
+    "condition": "Premier 10 km en course officielle",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_first_10k.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_first_half",
+    "name": "Premier semi-marathon officiel",
+    "collection": "courses_officielles",
+    "description": "Premier semi-marathon en course officielle",
+    "condition": "Premier semi-marathon en course officielle",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_first_half.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_first_nature",
+    "name": "Première course nature",
+    "collection": "courses_officielles",
+    "description": "Première course nature officielle",
+    "condition": "Première course nature officielle",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_first_nature.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_first_trail",
+    "name": "Premier trail",
+    "collection": "courses_officielles",
+    "description": "Premier trail officiel",
+    "condition": "Premier trail officiel",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_first_trail.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_first_night",
+    "name": "Première course nocturne",
+    "collection": "courses_officielles",
+    "description": "Première course nocturne officielle",
+    "condition": "Première course nocturne officielle",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_first_night.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_first_charity",
+    "name": "Première course caritative",
+    "collection": "courses_officielles",
+    "description": "Première course caritative officielle",
+    "condition": "Première course caritative officielle",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_first_charity.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_first_abroad",
+    "name": "Première course à l'étranger",
+    "collection": "courses_officielles",
+    "description": "Première course officielle hors de France",
+    "condition": "Première course officielle hors de France",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_first_abroad.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_10",
+    "name": "10 courses officielles",
+    "collection": "courses_officielles",
+    "description": "Cumuler 10 courses officielles",
+    "condition": "Cumuler 10 courses officielles",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_10.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_25",
+    "name": "25 courses officielles",
+    "collection": "courses_officielles",
+    "description": "Cumuler 25 courses officielles",
+    "condition": "Cumuler 25 courses officielles",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_25.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_50",
+    "name": "50 courses officielles",
+    "collection": "courses_officielles",
+    "description": "Cumuler 50 courses officielles",
+    "condition": "Cumuler 50 courses officielles",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_50.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "official_100",
+    "name": "100 courses officielles",
+    "collection": "courses_officielles",
+    "description": "Cumuler 100 courses officielles",
+    "condition": "Cumuler 100 courses officielles",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/official_100.png",
+    "unlocked": false,
+    "unlockedDate": null
+  }
+];
+
+if (typeof module !== 'undefined') module.exports = BADGES;
+
+
+/* ============ data/challenges.js ============ */
+// Données des grands défis kilométriques — un seul défi actif à la fois.
+const CHALLENGES = [
+  {
+    "id": "challenge_court_tour-du-lac-d-annecy",
+    "name": "Tour du lac d'Annecy",
+    "targetKm": 42,
+    "category": "court",
+    "description": "Faire le tour intégral du lac d'Annecy",
+    "image": "assets/challenges/challenge_court_Tour du lac d'Annecy.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_sentier-des-douaniers",
+    "name": "Sentier des Douaniers",
+    "targetKm": 60,
+    "category": "court",
+    "description": "Longer le sentier littoral breton",
+    "image": "assets/challenges/challenge_court_Sentier des Douaniers.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_tour-de-l-ile-de-re",
+    "name": "Tour de l'île de Ré",
+    "targetKm": 70,
+    "category": "court",
+    "description": "Faire le tour de l'île de Ré à vélo... à pied !",
+    "image": "assets/challenges/challenge_court_Tour de l'île de Ré.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_chemin-des-cretes-vosgiennes",
+    "name": "Chemin des Crêtes vosgiennes",
+    "targetKm": 80,
+    "category": "court",
+    "description": "Traverser la ligne de crêtes des Vosges",
+    "image": "assets/challenges/challenge_court_Chemin des Crêtes vosgiennes.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_tour-du-mont-aigoual",
+    "name": "Tour du Mont Aigoual",
+    "targetKm": 45,
+    "category": "court",
+    "description": "Boucle autour du Mont Aigoual, Cévennes",
+    "image": "assets/challenges/challenge_court_Tour du Mont Aigoual.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_sentier-du-littoral-de-nice-a-menton",
+    "name": "Sentier du Littoral de Nice à Menton",
+    "targetKm": 30,
+    "category": "court",
+    "description": "Longer la Riviera française",
+    "image": "assets/challenges/challenge_court_Sentier du Littoral de Nice à Menton.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_tour-de-la-presqu-ile-de-crozon",
+    "name": "Tour de la Presqu'île de Crozon",
+    "targetKm": 55,
+    "category": "court",
+    "description": "Explorer la Bretagne sauvage",
+    "image": "assets/challenges/challenge_court_Tour de la Presqu'île de Crozon.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_boucle-du-vercors",
+    "name": "Boucle du Vercors",
+    "targetKm": 90,
+    "category": "court",
+    "description": "Traverser le massif du Vercors",
+    "image": "assets/challenges/challenge_court_Boucle du Vercors.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_tour-du-cap-corse",
+    "name": "Tour du Cap Corse",
+    "targetKm": 100,
+    "category": "court",
+    "description": "Faire le tour du Cap Corse",
+    "image": "assets/challenges/challenge_court_Tour du Cap Corse.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_sentier-cathare-partie-sud",
+    "name": "Sentier Cathare (partie sud)",
+    "targetKm": 120,
+    "category": "court",
+    "description": "Suivre les vestiges cathares",
+    "image": "assets/challenges/challenge_court_Sentier Cathare (partie sud).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_tour-du-canigou",
+    "name": "Tour du Canigou",
+    "targetKm": 50,
+    "category": "court",
+    "description": "Faire le tour du massif du Canigou",
+    "image": "assets/challenges/challenge_court_Tour du Canigou.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_chemin-de-stevenson-partie",
+    "name": "Chemin de Stevenson (partie)",
+    "targetKm": 130,
+    "category": "court",
+    "description": "Suivre les traces de Robert Louis Stevenson",
+    "image": "assets/challenges/challenge_court_Chemin de Stevenson (partie).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_boucle-de-la-chartreuse",
+    "name": "Boucle de la Chartreuse",
+    "targetKm": 65,
+    "category": "court",
+    "description": "Traverser le massif de la Chartreuse",
+    "image": "assets/challenges/challenge_court_Boucle de la Chartreuse.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_tour-du-pilat",
+    "name": "Tour du Pilat",
+    "targetKm": 110,
+    "category": "court",
+    "description": "Boucle autour du Parc du Pilat",
+    "image": "assets/challenges/challenge_court_Tour du Pilat.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_court_sentier-des-gorges-du-verdon",
+    "name": "Sentier des Gorges du Verdon",
+    "targetKm": 35,
+    "category": "court",
+    "description": "Longer les Gorges du Verdon",
+    "image": "assets/challenges/challenge_court_Sentier des Gorges du Verdon.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_tour-du-mont-blanc",
+    "name": "Tour du Mont-Blanc",
+    "targetKm": 170,
+    "category": "moyen",
+    "description": "Le tour classique du toit de l'Europe occidentale",
+    "image": "assets/challenges/challenge_moyen_Tour du Mont-Blanc.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_gr20",
+    "name": "GR20",
+    "targetKm": 180,
+    "category": "moyen",
+    "description": "La traversée légendaire de la Corse",
+    "image": "assets/challenges/challenge_moyen_GR20.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_wild-atlantic-way-partie",
+    "name": "Wild Atlantic Way (partie)",
+    "targetKm": 300,
+    "category": "moyen",
+    "description": "Longer la côte atlantique irlandaise",
+    "image": "assets/challenges/challenge_moyen_Wild Atlantic Way (partie).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_traversee-des-pyrenees-partie-ouest",
+    "name": "Traversée des Pyrénées (partie ouest)",
+    "targetKm": 350,
+    "category": "moyen",
+    "description": "De l'Atlantique vers les sommets pyrénéens",
+    "image": "assets/challenges/challenge_moyen_Traversée des Pyrénées (partie ouest).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_tour-de-l-islande-partie",
+    "name": "Tour de l'Islande (partie)",
+    "targetKm": 400,
+    "category": "moyen",
+    "description": "Suivre l'anneau islandais",
+    "image": "assets/challenges/challenge_moyen_Tour de l'Islande (partie).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_chemin-de-stevenson-integral",
+    "name": "Chemin de Stevenson intégral",
+    "targetKm": 252,
+    "category": "moyen",
+    "description": "Le Puy-en-Velay à Alès",
+    "image": "assets/challenges/challenge_moyen_Chemin de Stevenson intégral.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_gr10-partie",
+    "name": "GR10 (partie)",
+    "targetKm": 400,
+    "category": "moyen",
+    "description": "Traversée des Pyrénées, versant nord",
+    "image": "assets/challenges/challenge_moyen_GR10 (partie).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_via-alpina-partie",
+    "name": "Via Alpina (partie)",
+    "targetKm": 350,
+    "category": "moyen",
+    "description": "Traverser les Alpes d'ouest en est",
+    "image": "assets/challenges/challenge_moyen_Via Alpina (partie).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_tour-des-cevennes",
+    "name": "Tour des Cévennes",
+    "targetKm": 200,
+    "category": "moyen",
+    "description": "Boucle complète des Cévennes",
+    "image": "assets/challenges/challenge_moyen_Tour des Cévennes.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_sentier-du-mont-fuji",
+    "name": "Sentier du Mont Fuji",
+    "targetKm": 160,
+    "category": "moyen",
+    "description": "Approche et tour du Mont Fuji",
+    "image": "assets/challenges/challenge_moyen_Sentier du Mont Fuji.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_great-ocean-road-partie",
+    "name": "Great Ocean Road (partie)",
+    "targetKm": 250,
+    "category": "moyen",
+    "description": "Longer la côte australienne",
+    "image": "assets/challenges/challenge_moyen_Great Ocean Road (partie).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_camino-primitivo",
+    "name": "Camino Primitivo",
+    "targetKm": 320,
+    "category": "moyen",
+    "description": "L'itinéraire originel de Compostelle",
+    "image": "assets/challenges/challenge_moyen_Camino Primitivo.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_traversee-du-massif-central",
+    "name": "Traversée du Massif Central",
+    "targetKm": 380,
+    "category": "moyen",
+    "description": "Du Puy-de-Dôme aux Cévennes",
+    "image": "assets/challenges/challenge_moyen_Traversée du Massif Central.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_coast-to-coast-angleterre",
+    "name": "Coast to Coast (Angleterre)",
+    "targetKm": 300,
+    "category": "moyen",
+    "description": "Traverser l'Angleterre d'une côte à l'autre",
+    "image": "assets/challenges/challenge_moyen_Coast to Coast (Angleterre).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_moyen_tour-des-alpes-suisses-partie",
+    "name": "Tour des Alpes Suisses (partie)",
+    "targetKm": 450,
+    "category": "moyen",
+    "description": "Boucle dans les Alpes suisses",
+    "image": "assets/challenges/challenge_moyen_Tour des Alpes Suisses (partie).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_long_camino-de-santiago-francais",
+    "name": "Camino de Santiago (Français)",
+    "targetKm": 780,
+    "category": "long",
+    "description": "Le chemin de Compostelle depuis Saint-Jean-Pied-de-Port",
+    "image": "assets/challenges/challenge_long_Camino de Santiago (Français).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_long_traversee-des-pyrenees-integrale",
+    "name": "Traversée des Pyrénées intégrale",
+    "targetKm": 900,
+    "category": "long",
+    "description": "De l'Atlantique à la Méditerranée",
+    "image": "assets/challenges/challenge_long_Traversée des Pyrénées intégrale.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_long_traversee-des-alpes-integrale",
+    "name": "Traversée des Alpes intégrale",
+    "targetKm": 1100,
+    "category": "long",
+    "description": "De Nice à Vienne à travers les Alpes",
+    "image": "assets/challenges/challenge_long_Traversée des Alpes intégrale.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_long_gr5-integral",
+    "name": "GR5 intégral",
+    "targetKm": 1400,
+    "category": "long",
+    "description": "De la mer du Nord à la Méditerranée",
+    "image": "assets/challenges/challenge_long_GR5 intégral.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_long_sentier-du-mont-fuji-au-mont-blanc-symbolique",
+    "name": "Sentier du Mont Fuji au Mont Blanc (symbolique)",
+    "targetKm": 1300,
+    "category": "long",
+    "description": "Un défi symbolique reliant deux sommets mythiques",
+    "image": "assets/challenges/challenge_long_Sentier du Mont Fuji au Mont Blanc (symbolique).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_long_appalachian-trail-partie",
+    "name": "Appalachian Trail (partie)",
+    "targetKm": 1000,
+    "category": "long",
+    "description": "Une portion de la mythique piste des Appalaches",
+    "image": "assets/challenges/challenge_long_Appalachian Trail (partie).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_long_pacific-crest-trail-partie",
+    "name": "Pacific Crest Trail (partie)",
+    "targetKm": 1200,
+    "category": "long",
+    "description": "Une portion du sentier de la crête du Pacifique",
+    "image": "assets/challenges/challenge_long_Pacific Crest Trail (partie).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_long_wild-atlantic-way-integral",
+    "name": "Wild Atlantic Way intégral",
+    "targetKm": 1500,
+    "category": "long",
+    "description": "L'intégralité de la côte atlantique irlandaise",
+    "image": "assets/challenges/challenge_long_Wild Atlantic Way intégral.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_long_tour-complet-de-l-islande",
+    "name": "Tour complet de l'Islande",
+    "targetKm": 1330,
+    "category": "long",
+    "description": "L'anneau islandais dans son intégralité",
+    "image": "assets/challenges/challenge_long_Tour complet de l'Islande.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_long_route-des-grandes-alpes",
+    "name": "Route des Grandes Alpes",
+    "targetKm": 700,
+    "category": "long",
+    "description": "De Thonon-les-Bains à Menton",
+    "image": "assets/challenges/challenge_long_Route des Grandes Alpes.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_legendaire_route-66",
+    "name": "Route 66",
+    "targetKm": 3940,
+    "category": "legendaire",
+    "description": "La mythique route américaine de Chicago à Santa Monica",
+    "image": "assets/challenges/challenge_legendaire_Route 66.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_legendaire_grande-muraille-de-chine",
+    "name": "Grande Muraille de Chine",
+    "targetKm": 3460,
+    "category": "legendaire",
+    "description": "La longueur légendaire de la Grande Muraille",
+    "image": "assets/challenges/challenge_legendaire_Grande Muraille de Chine.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_legendaire_appalachian-trail-integral",
+    "name": "Appalachian Trail intégral",
+    "targetKm": 3500,
+    "category": "legendaire",
+    "description": "L'intégralité de la piste des Appalaches",
+    "image": "assets/challenges/challenge_legendaire_Appalachian Trail intégral.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_legendaire_pacific-crest-trail-integral",
+    "name": "Pacific Crest Trail intégral",
+    "targetKm": 4270,
+    "category": "legendaire",
+    "description": "L'intégralité du sentier de la crête du Pacifique",
+    "image": "assets/challenges/challenge_legendaire_Pacific Crest Trail intégral.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_legendaire_camino-de-santiago-depuis-paris",
+    "name": "Camino de Santiago depuis Paris",
+    "targetKm": 1900,
+    "category": "legendaire",
+    "description": "Le chemin de Compostelle depuis Paris",
+    "image": "assets/challenges/challenge_legendaire_Camino de Santiago depuis Paris.png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_legendaire_machu-picchu-chemin-de-l-inca-symbolique-etendu",
+    "name": "Machu Picchu — Chemin de l'Inca (symbolique étendu)",
+    "targetKm": 1800,
+    "category": "legendaire",
+    "description": "Un périple symbolique vers la cité inca",
+    "image": "assets/challenges/challenge_legendaire_Machu Picchu — Chemin de l'Inca (symbolique étendu).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_legendaire_traversee-de-l-europe-lisbonneistanbul-symbolique",
+    "name": "Traversée de l'Europe (Lisbonne–Istanbul, symbolique)",
+    "targetKm": 5000,
+    "category": "legendaire",
+    "description": "Un tour d'Europe symbolique d'ouest en est",
+    "image": "assets/challenges/challenge_legendaire_Traversée de l'Europe (Lisbonne–Istanbul, symbolique).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_legendaire_transsiberien-a-pied-symbolique",
+    "name": "Transsibérien à pied (symbolique)",
+    "targetKm": 9000,
+    "category": "legendaire",
+    "description": "L'équivalent symbolique du trajet transsibérien",
+    "image": "assets/challenges/challenge_legendaire_Transsibérien à pied (symbolique).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_legendaire_tour-du-monde-symbolique-partiel",
+    "name": "Tour du monde symbolique (partiel)",
+    "targetKm": 6000,
+    "category": "legendaire",
+    "description": "Une fraction symbolique du tour de la Terre",
+    "image": "assets/challenges/challenge_legendaire_Tour du monde symbolique (partiel).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  },
+  {
+    "id": "challenge_legendaire_silk-road-trail-symbolique",
+    "name": "Silk Road Trail (symbolique)",
+    "targetKm": 2500,
+    "category": "legendaire",
+    "description": "Un périple symbolique sur la route de la soie",
+    "image": "assets/challenges/challenge_legendaire_Silk Road Trail (symbolique).png",
+    "currentKm": 0,
+    "checkpoints": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointsReached": [],
+    "completed": false,
+    "completedDate": null
+  }
+];
+
+if (typeof module !== 'undefined') module.exports = CHALLENGES;
+
+
+/* ============ data/weekly.js ============ */
+// Données des badges hebdomadaires temporaires.
+// Chaque entrée = une semaine avec 5 niveaux (10/20/30/40/50 km).
+// Pour ajouter une nouvelle semaine : copier un bloc, changer year/week/theme/images.
+// Le "theme" est purement graphique et sert de nom interne ; l'affichage utilisateur
+// reste générique ("Badge hebdomadaire — Semaine XX — Niveau N").
+
+const WEEKLY_LEVELS_KM = [10, 20, 30, 40, 50];
+
+function makeWeeklyBadges(year, week, theme) {
+  return WEEKLY_LEVELS_KM.map((km, idx) => ({
+    id: `weekly_${year}_${week}_${idx + 1}`,
+    name: `Badge hebdomadaire — Semaine ${week} (${year}) — Niveau ${idx + 1}`,
+    collection: "hebdomadaire",
+    theme,
+    level: idx + 1,
+    description: `Courir ${km} km cumulés durant la semaine ${week} de ${year}`,
+    condition: `${km} km cumulés cette semaine-là`,
+    target: km,
+    unit: "km",
+    image: `assets/badges/weekly/${theme}_niveau${idx + 1}.png`,
+    unlocked: false,
+    unlockedDate: null,
+    year,
+    week,
+  }));
+}
+
+// Semaines pré-configurées (thèmes graphiques indicatifs, à personnaliser librement)
+const WEEKLY_THEMES = [
+  { year: 2026, week: 32, theme: "constellation" },
+  { year: 2026, week: 33, theme: "vagues" },
+  { year: 2026, week: 34, theme: "foret_nocturne" },
+];
+
+const WEEKLY_BADGES = WEEKLY_THEMES.flatMap(w => makeWeeklyBadges(w.year, w.week, w.theme));
+
+// Pioche de thèmes utilisée pour générer AUTOMATIQUEMENT les semaines non
+// pré-configurées (passées ou futures). Cycle déterministe : la même semaine
+// tombe toujours sur le même thème, même après rechargement.
+const THEME_POOL = [
+  "constellation", "vagues", "foret_nocturne", "aurore", "comete", "dune",
+  "glacier", "meteore", "brasier", "lagune", "eclipse", "canyon", "toundra",
+  "nebuleuse", "maree_haute", "orage", "corail", "sequoia", "givre", "mirage",
+];
+
+function themeForWeek(year, week) {
+  const index = (year * 100 + week) % THEME_POOL.length;
+  return THEME_POOL[index];
+}
+
+if (typeof module !== 'undefined') module.exports = { WEEKLY_LEVELS_KM, makeWeeklyBadges, WEEKLY_THEMES, WEEKLY_BADGES, THEME_POOL, themeForWeek };
+
+
+/* ============ app.js (moteur) ============ */
+'use strict';
+
+/* =========================================================
+   RunQuest — moteur de l'application
+   Architecture : moteur générique + données externes (data/*.js)
+   ========================================================= */
+
+const STORAGE_KEY = 'runquest_state_v1';
+
+const DEFAULT_STATE = () => ({
+  runs: [],
+  badges: JSON.parse(JSON.stringify(typeof BADGES !== 'undefined' ? BADGES : [])),
+  weeklyBadges: JSON.parse(JSON.stringify(typeof WEEKLY_BADGES !== 'undefined' ? WEEKLY_BADGES : [])),
+  challenges: JSON.parse(JSON.stringify(typeof CHALLENGES !== 'undefined' ? CHALLENGES : [])),
+  activeChallengeId: null,
+  settings: { birthday: null },
+});
+
+let STATE = null;
+
+/* ---------------- Stockage ---------------- */
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+    return true;
+  } catch (e) {
+    console.error('Erreur de sauvegarde', e);
+    return false;
+  }
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      STATE = DEFAULT_STATE();
+      saveData();
+      return STATE;
+    }
+    const parsed = JSON.parse(raw);
+    // Fusion souple : si de nouveaux badges/défis/semaines ont été ajoutés au code
+    // depuis la dernière sauvegarde, on les ajoute sans perdre la progression existante.
+    STATE = mergeWithDefaults(parsed);
+    return STATE;
+  } catch (e) {
+    console.error('Erreur de chargement, réinitialisation', e);
+    STATE = DEFAULT_STATE();
+    saveData();
+    return STATE;
+  }
+}
+
+function mergeWithDefaults(saved) {
+  const fresh = DEFAULT_STATE();
+  const merged = {
+    runs: saved.runs || [],
+    badges: mergeById(fresh.badges, saved.badges || []),
+    weeklyBadges: mergeById(fresh.weeklyBadges, saved.weeklyBadges || []),
+    challenges: mergeById(fresh.challenges, saved.challenges || []),
+    activeChallengeId: saved.activeChallengeId || null,
+    settings: Object.assign({ birthday: null }, saved.settings || {}),
+  };
+  return merged;
+}
+
+function mergeById(freshArr, savedArr) {
+  const savedById = {};
+  savedArr.forEach(item => { savedById[item.id] = item; });
+  return freshArr.map(item => savedById[item.id] ? Object.assign({}, item, savedById[item.id]) : item);
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(STATE, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `runquest-sauvegarde-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (!parsed || !Array.isArray(parsed.runs)) throw new Error('Format invalide');
+      STATE = mergeWithDefaults(parsed);
+      recalculateEverything();
+      saveData();
+      renderCurrentScreen();
+      toast('Sauvegarde importée avec succès.');
+    } catch (e) {
+      console.error(e);
+      toast("Le fichier importé n'est pas une sauvegarde valide.", true);
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ---------------- Calculs ---------------- */
+
+function calculatePace(distanceKm, durationMin) {
+  if (!distanceKm || distanceKm <= 0) return null;
+  return durationMin / distanceKm; // min/km
+}
+
+function paceToString(paceMinPerKm) {
+  if (paceMinPerKm == null || !isFinite(paceMinPerKm)) return '—';
+  const min = Math.floor(paceMinPerKm);
+  const sec = Math.round((paceMinPerKm - min) * 60);
+  return `${min}:${String(sec).padStart(2, '0')} /km`;
+}
+
+function paceStringToMinutes(str) {
+  // "5:00" -> 5.0
+  const [m, s] = str.split(':').map(Number);
+  return m + (s || 0) / 60;
+}
+
+function calculateSpeed(distanceKm, durationMin) {
+  if (!durationMin || durationMin <= 0) return null;
+  return (distanceKm / durationMin) * 60; // km/h
+}
+
+function startOfWeek(date) {
+  const d = new Date(date);
+  const day = (d.getDay() + 6) % 7; // lundi = 0
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - day);
+  return d;
+}
+
+function isoWeekInfo(dateStr) {
+  const d = new Date(dateStr);
+  const target = new Date(d.valueOf());
+  const dayNr = (d.getDay() + 6) % 7;
+  target.setDate(target.getDate() - dayNr + 3);
+  const firstThursday = new Date(target.getFullYear(), 0, 4);
+  const week = 1 + Math.round(((target - firstThursday) / 86400000 - 3 + ((firstThursday.getDay() + 6) % 7)) / 7);
+  return { year: target.getFullYear(), week };
+}
+
+function calculateStats() {
+  const runs = STATE.runs;
+  const now = new Date();
+  const weekStart = startOfWeek(now);
+  const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+  const yearKey = `${now.getFullYear()}`;
+
+  let totalKm = 0, totalDuration = 0, totalElevation = 0;
+  let kmWeek = 0, kmMonth = 0, kmYear = 0;
+  let longestRun = 0, bestPace = Infinity, biggestElevation = 0;
+  const departmentsVisited = new Set();
+  const countriesVisited = new Set();
+  let officialCount = 0;
+
+  runs.forEach(r => {
+    totalKm += r.distanceKm;
+    totalDuration += r.durationMin;
+    totalElevation += r.elevationGain || 0;
+    longestRun = Math.max(longestRun, r.distanceKm);
+    biggestElevation = Math.max(biggestElevation, r.elevationGain || 0);
+    if (r.paceMinPerKm && r.paceMinPerKm < bestPace) bestPace = r.paceMinPerKm;
+    if (r.department) departmentsVisited.add(r.department);
+    if (r.country) countriesVisited.add(r.country);
+    if (r.officialRace) officialCount++;
+
+    const rDate = new Date(r.date);
+    if (rDate >= weekStart) kmWeek += r.distanceKm;
+    if (`${rDate.getFullYear()}-${rDate.getMonth()}` === monthKey) kmMonth += r.distanceKm;
+    if (`${rDate.getFullYear()}` === yearKey) kmYear += r.distanceKm;
+  });
+
+  const streaks = calculateStreaks(runs);
+
+  return {
+    totalKm, totalDuration, totalElevation,
+    kmWeek, kmMonth, kmYear,
+    totalRuns: runs.length,
+    longestRun, bestPace: isFinite(bestPace) ? bestPace : null, biggestElevation,
+    departmentsVisited: [...departmentsVisited],
+    countriesVisited: [...countriesVisited],
+    officialCount,
+    currentStreak: streaks.current,
+    longestStreak: streaks.longest,
+    lastRun: runs.length ? runs.slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0] : null,
+  };
+}
+
+function calculateStreaks(runs) {
+  if (!runs.length) return { current: 0, longest: 0 };
+  const days = [...new Set(runs.map(r => r.date))].sort();
+  let longest = 1, current = 1, streak = 1;
+  for (let i = 1; i < days.length; i++) {
+    const prev = new Date(days[i - 1]);
+    const cur = new Date(days[i]);
+    const diff = Math.round((cur - prev) / 86400000);
+    if (diff === 1) { streak++; } else { streak = 1; }
+    longest = Math.max(longest, streak);
+  }
+  // série "actuelle" : à partir d'aujourd'hui, en remontant
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const daySet = new Set(days);
+  let cur = 0;
+  let cursor = new Date(today);
+  // si pas couru aujourd'hui, la série actuelle part d'hier
+  if (!daySet.has(today.toISOString().slice(0, 10))) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  while (daySet.has(cursor.toISOString().slice(0, 10))) {
+    cur++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return { current: cur, longest };
+}
+
+function weeklyKmFor(year, week, runs) {
+  return runs
+    .filter(r => {
+      const info = isoWeekInfo(r.date);
+      return info.year === year && info.week === week;
+    })
+    .reduce((sum, r) => sum + r.distanceKm, 0);
+}
+
+/* ---------------- Moteur de badges (data-driven) ---------------- */
+
+// Chaque collection a une fonction "progress(badge, ctx) -> {value, unlocked}"
+const BADGE_CHECKERS = {
+  distance_unique: (badge, ctx) => ({ value: ctx.stats.longestRun, unlocked: ctx.stats.longestRun >= badge.target }),
+  regularite: (badge, ctx) => ({ value: ctx.stats.longestStreak, unlocked: ctx.stats.longestStreak >= badge.target }),
+  vitesse: (badge, ctx) => {
+    const targetPace = paceStringToMinutes(badge.target);
+    const best = ctx.stats.bestPace;
+    const unlocked = best != null && best <= targetPace;
+    return { value: best, unlocked };
+  },
+  denivele: (badge, ctx) => ({ value: ctx.stats.biggestElevation, unlocked: ctx.stats.biggestElevation >= badge.target }),
+  departements: (badge, ctx) => ({ value: null, unlocked: ctx.stats.departmentsVisited.includes(badge.deptCode) }),
+  pays: (badge, ctx) => ({ value: null, unlocked: ctx.stats.countriesVisited.some(c => c.toLowerCase() === badge.country.toLowerCase()) }),
+  distance_cumulee: (badge, ctx) => ({ value: ctx.stats.totalKm, unlocked: ctx.stats.totalKm >= badge.target }),
+  jours_particuliers: (badge, ctx) => {
+    if (badge.date === 'configurable') {
+      const bday = STATE.settings.birthday; // "MM-DD"
+      if (!bday) return { value: null, unlocked: false };
+      return { value: null, unlocked: ctx.runs.some(r => r.date.slice(5) === bday) };
+    }
+    return { value: null, unlocked: ctx.runs.some(r => r.date.slice(5) === badge.date) };
+  },
+  horaires: (badge, ctx) => ({ value: null, unlocked: checkTimingBadge(badge, ctx) }),
+  meteo: (badge, ctx) => ({ value: null, unlocked: ctx.runs.some(r => r.weather === weatherKeyForBadge(badge.id)) }),
+  courses_officielles: (badge, ctx) => ({ value: null, unlocked: checkOfficialBadge(badge, ctx) }),
+};
+
+function weatherKeyForBadge(id) {
+  return id.replace('weather_', '');
+}
+
+function checkTimingBadge(badge, ctx) {
+  const runs = ctx.runs;
+  switch (badge.id) {
+    case 'time_sunrise':
+      return runs.some(r => r.time && r.time >= '06:00' && r.time <= '07:30');
+    case 'time_sunset':
+      return runs.some(r => r.time && r.time >= '20:00' && r.time <= '21:30');
+    case 'time_midnight_runner':
+      return runs.some(r => runCrossesMidnight(r));
+    case 'time_night_owl':
+      return runs.some(r => runEntirelyBetween(r, '00:00', '05:00'));
+    case 'time_summer_solstice':
+      return runs.some(r => r.date.slice(5) === '06-21');
+    case 'time_winter_solstice':
+      return runs.some(r => r.date.slice(5) === '12-21');
+    default:
+      return false;
+  }
+}
+
+function runCrossesMidnight(r) {
+  if (!r.time || !r.durationMin) return false;
+  const [h, m] = r.time.split(':').map(Number);
+  const startMin = h * 60 + m;
+  return startMin + r.durationMin >= 24 * 60;
+}
+
+function runEntirelyBetween(r, startStr, endStr) {
+  if (!r.time || !r.durationMin) return false;
+  const [h, m] = r.time.split(':').map(Number);
+  const startMin = h * 60 + m;
+  const endMin = startMin + r.durationMin;
+  const [sh, sm] = startStr.split(':').map(Number);
+  const [eh, em] = endStr.split(':').map(Number);
+  return startMin >= sh * 60 + sm && endMin <= eh * 60 + em;
+}
+
+function checkOfficialBadge(badge, ctx) {
+  const officialRuns = ctx.runs.filter(r => r.officialRace);
+  switch (badge.id) {
+    case 'official_first': return officialRuns.length >= 1;
+    case 'official_first_5k': return officialRuns.some(r => r.distanceKm >= 5);
+    case 'official_first_10k': return officialRuns.some(r => r.distanceKm >= 10);
+    case 'official_first_half': return officialRuns.some(r => r.distanceKm >= 21.1);
+    case 'official_first_nature': return officialRuns.some(r => r.officialRaceType === 'nature');
+    case 'official_first_trail': return officialRuns.some(r => r.officialRaceType === 'trail');
+    case 'official_first_night': return officialRuns.some(r => r.officialRaceType === 'nocturne');
+    case 'official_first_charity': return officialRuns.some(r => r.officialRaceType === 'caritative');
+    case 'official_first_abroad': return officialRuns.some(r => r.country && r.country.toLowerCase() !== 'france');
+    case 'official_10': return officialRuns.length >= 10;
+    case 'official_25': return officialRuns.length >= 25;
+    case 'official_50': return officialRuns.length >= 50;
+    case 'official_100': return officialRuns.length >= 100;
+    default: return false;
+  }
+}
+
+function checkBadges(stats) {
+  const ctx = { runs: STATE.runs, stats };
+  const newlyUnlocked = [];
+  STATE.badges.forEach(badge => {
+    if (badge.unlocked) return;
+    const checker = BADGE_CHECKERS[badge.collection];
+    if (!checker) return;
+    const result = checker(badge, ctx);
+    if (result.unlocked) {
+      badge.unlocked = true;
+      badge.unlockedDate = new Date().toISOString().slice(0, 10);
+      newlyUnlocked.push(badge);
+    }
+  });
+  return newlyUnlocked;
+}
+
+function checkWeeklyBadges() {
+  ensureWeeklyBadgesExist();
+  const newlyUnlocked = [];
+  const byWeek = {};
+  STATE.weeklyBadges.forEach(b => {
+    const key = `${b.year}-${b.week}`;
+    (byWeek[key] = byWeek[key] || []).push(b);
+  });
+  Object.entries(byWeek).forEach(([key, badgesOfWeek]) => {
+    const { year, week } = badgesOfWeek[0];
+    const kmThisWeek = weeklyKmFor(year, week, STATE.runs);
+    badgesOfWeek.forEach(b => {
+      if (!b.unlocked && kmThisWeek >= b.target) {
+        b.unlocked = true;
+        b.unlockedDate = new Date().toISOString().slice(0, 10);
+        newlyUnlocked.push(b);
+      }
+    });
+  });
+  return newlyUnlocked;
+}
+
+// Génère automatiquement les 5 badges d'une semaine dès qu'elle est concernée
+// (semaine en cours à chaque ouverture de l'appli, ou toute semaine où une
+// course a été enregistrée — y compris rétroactivement). Un thème est choisi
+// de façon déterministe dans THEME_POOL, sauf si la semaine a été
+// pré-configurée manuellement dans WEEKLY_THEMES (data/weekly.js).
+function ensureWeeklyBadgesExist() {
+  const neededWeeks = new Set();
+  const { year: curYear, week: curWeek } = isoWeekInfo(new Date().toISOString().slice(0, 10));
+  neededWeeks.add(`${curYear}-${curWeek}`);
+  STATE.runs.forEach(r => {
+    const { year, week } = isoWeekInfo(r.date);
+    neededWeeks.add(`${year}-${week}`);
+  });
+  const existing = new Set(STATE.weeklyBadges.map(b => `${b.year}-${b.week}`));
+  neededWeeks.forEach(key => {
+    if (existing.has(key)) return;
+    const [year, week] = key.split('-').map(Number);
+    const preset = (typeof WEEKLY_THEMES !== 'undefined') ? WEEKLY_THEMES.find(w => w.year === year && w.week === week) : null;
+    const theme = preset ? preset.theme : themeForWeek(year, week);
+    const created = makeWeeklyBadges(year, week, theme);
+    STATE.weeklyBadges.push(...created);
+    existing.add(key);
+  });
+}
+
+/* ---------------- Défis ---------------- */
+
+function updateChallengeProgress() {
+  if (!STATE.activeChallengeId) return null;
+  const challenge = STATE.challenges.find(c => c.id === STATE.activeChallengeId);
+  if (!challenge) return null;
+  const totalKm = STATE.runs.reduce((sum, r) => sum + r.distanceKm, 0);
+  // Le défi cumule les km parcourus DEPUIS son activation
+  const startKm = challenge.startTotalKm || 0;
+  challenge.currentKm = Math.min(challenge.targetKm, Math.max(0, totalKm - startKm));
+  const pct = (challenge.currentKm / challenge.targetKm) * 100;
+  [25, 50, 75, 100].forEach(cp => {
+    if (pct >= cp && !challenge.checkpointsReached.includes(cp)) {
+      challenge.checkpointsReached.push(cp);
+    }
+  });
+  if (pct >= 100 && !challenge.completed) {
+    challenge.completed = true;
+    challenge.completedDate = new Date().toISOString().slice(0, 10);
+  }
+  return challenge;
+}
+
+function activateChallenge(challengeId) {
+  const totalKm = STATE.runs.reduce((sum, r) => sum + r.distanceKm, 0);
+  STATE.challenges.forEach(c => {
+    if (c.id === challengeId) {
+      c.startTotalKm = totalKm - c.currentKm; // conserve la progression déjà faite si ré-activé
+    }
+  });
+  STATE.activeChallengeId = challengeId;
+  saveData();
+}
+
+/* ---------------- Recalcul global ---------------- */
+
+function recalculateEverything() {
+  // Repartir des badges/défis vierges puis rejouer l'historique dans l'ordre chronologique
+  const runsSorted = STATE.runs.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+  STATE.badges.forEach(b => { b.unlocked = false; b.unlockedDate = null; });
+  STATE.weeklyBadges.forEach(b => { b.unlocked = false; b.unlockedDate = null; });
+  STATE.challenges.forEach(c => { c.currentKm = 0; c.checkpointsReached = []; c.completed = false; c.completedDate = null; });
+
+  // recompute pace per run
+  STATE.runs.forEach(r => {
+    r.paceMinPerKm = calculatePace(r.distanceKm, r.durationMin);
+    r.speedKmH = calculateSpeed(r.distanceKm, r.durationMin);
+  });
+
+  const stats = calculateStats();
+  checkBadges(stats);
+  checkWeeklyBadges();
+  updateChallengeProgress();
+  return stats;
+}
+
+/* ---------------- Ajout / édition / suppression de course ---------------- */
+
+function addRun(runData) {
+  const run = Object.assign({ id: 'run_' + Date.now() }, runData);
+  run.paceMinPerKm = calculatePace(run.distanceKm, run.durationMin);
+  run.speedKmH = calculateSpeed(run.distanceKm, run.durationMin);
+  STATE.runs.push(run);
+
+  const stats = calculateStats();
+  updateChallengeProgress();
+  const newBadges = checkBadges(stats);
+  const newWeekly = checkWeeklyBadges();
+  saveData();
+  return { stats, newBadges: [...newBadges, ...newWeekly] };
+}
+
+function deleteRun(runId) {
+  STATE.runs = STATE.runs.filter(r => r.id !== runId);
+  recalculateEverything();
+  saveData();
+}
+
+function updateRun(runId, updates) {
+  const idx = STATE.runs.findIndex(r => r.id === runId);
+  if (idx === -1) return;
+  STATE.runs[idx] = Object.assign({}, STATE.runs[idx], updates);
+  recalculateEverything();
+  saveData();
+}
+
+/* =========================================================
+   Le reste (rendu d'écrans, navigation, formulaires) vit dans ui.js
+   pour garder ce fichier concentré sur le moteur de données.
+   ========================================================= */
+
+
+/* ============ ui.js (interface) ============ */
+'use strict';
+
+/* =========================================================
+   RunQuest — interface (rendu des écrans, navigation, formulaires)
+   ========================================================= */
+
+const CATEGORY_LABELS = {
+  distance_unique: 'Performances — Distance',
+  regularite: 'Régularité',
+  vitesse: 'Performances — Vitesse',
+  denivele: 'Dénivelé',
+  departements: 'Territoires — Départements',
+  pays: 'Territoires — Pays',
+  jours_particuliers: 'Événements — Jours particuliers',
+  horaires: 'Événements — Horaires',
+  meteo: 'Météo',
+  distance_cumulee: 'Distance cumulée',
+  courses_officielles: 'Courses officielles',
+  hebdomadaire: 'Hebdomadaires',
+};
+
+const SCREENS = ['accueil', 'defis', 'ajouter', 'collection', 'stats'];
+let currentScreen = 'accueil';
+
+function initApp() {
+  loadData();
+  recalculateEverything();
+  saveData();
+  bindNavigation();
+  renderCurrentScreen();
+}
+
+function bindNavigation() {
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const screen = btn.dataset.screen;
+      goToScreen(screen);
+    });
+  });
+}
+
+function goToScreen(screen) {
+  currentScreen = screen;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === screen));
+  renderCurrentScreen();
+  window.scrollTo(0, 0);
+}
+
+function renderCurrentScreen() {
+  const root = document.getElementById('screen-root');
+  root.innerHTML = '';
+  switch (currentScreen) {
+    case 'accueil': return renderAccueil(root);
+    case 'defis': return renderDefis(root);
+    case 'ajouter': return renderAjouter(root);
+    case 'collection': return renderCollection(root);
+    case 'stats': return renderStats(root);
+  }
+}
+
+/* ---------------- Toast ---------------- */
+
+function toast(message, isError) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (isError ? ' toast-error' : '');
+  el.textContent = message;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 2600);
+}
+
+/* ---------------- Accueil ---------------- */
+
+function renderAccueil(root) {
+  const stats = calculateStats();
+  const nextWeekly = nextReachableWeeklyBadge(stats);
+  const activeChallenge = STATE.challenges.find(c => c.id === STATE.activeChallengeId);
+
+  const el = document.createElement('div');
+  el.className = 'screen screen-accueil';
+  el.innerHTML = `
+    <header class="hero">
+      <div class="hero-label">Cette semaine</div>
+      <div class="hero-value">${formatKm(stats.kmWeek)} <span class="hero-unit">km</span></div>
+      <div class="hero-sub">${stats.currentStreak > 0 ? `🔥 Série en cours : ${stats.currentStreak} jour${stats.currentStreak > 1 ? 's' : ''}` : "Pas de série active — lancez-vous aujourd'hui"}</div>
+    </header>
+
+    ${nextWeekly ? `
+    <section class="card next-badge">
+      <div class="card-eyebrow">Prochain badge</div>
+      <div class="card-title">${nextWeekly.badge.target} km cette semaine</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100, nextWeekly.pct)}%"></div></div>
+      <div class="card-foot">${formatKm(nextWeekly.remaining)} km restants</div>
+    </section>` : ''}
+
+    ${activeChallenge ? `
+    <section class="card challenge-card">
+      <div class="card-eyebrow">Défi en cours</div>
+      <div class="card-title">${activeChallenge.name}</div>
+      <div class="progress-bar"><div class="progress-fill accent" style="width:${Math.min(100, (activeChallenge.currentKm / activeChallenge.targetKm) * 100)}%"></div></div>
+      <div class="card-foot">${formatKm(activeChallenge.currentKm)} / ${formatKm(activeChallenge.targetKm)} km · ${Math.round((activeChallenge.currentKm / activeChallenge.targetKm) * 100)}%</div>
+    </section>` : `
+    <section class="card challenge-card empty" onclick="goToScreen('defis')">
+      <div class="card-eyebrow">Aucun défi actif</div>
+      <div class="card-title">Choisissez votre prochaine aventure →</div>
+    </section>`}
+
+    <section class="stat-grid">
+      <div class="stat-tile"><div class="stat-num">${formatKm(stats.kmMonth)}</div><div class="stat-label">km ce mois</div></div>
+      <div class="stat-tile"><div class="stat-num">${formatKm(stats.kmYear)}</div><div class="stat-label">km cette année</div></div>
+      <div class="stat-tile"><div class="stat-num">${stats.totalRuns}</div><div class="stat-label">sorties</div></div>
+      <div class="stat-tile"><div class="stat-num">${stats.lastRun ? formatDate(stats.lastRun.date) : '—'}</div><div class="stat-label">dernière sortie</div></div>
+    </section>
+
+    <button class="fab-inline" onclick="goToScreen('ajouter')">+ Ajouter une course</button>
+  `;
+  root.appendChild(el);
+}
+
+function nextReachableWeeklyBadge(stats) {
+  const { year, week } = isoWeekInfo(new Date().toISOString().slice(0, 10));
+  const badgesThisWeek = STATE.weeklyBadges.filter(b => b.year === year && b.week === week);
+  if (!badgesThisWeek.length) return null;
+  const kmThisWeek = weeklyKmFor(year, week, STATE.runs);
+  const next = badgesThisWeek.find(b => !b.unlocked);
+  if (!next) return null;
+  return {
+    badge: next,
+    remaining: Math.max(0, next.target - kmThisWeek),
+    pct: (kmThisWeek / next.target) * 100,
+  };
+}
+
+/* ---------------- Défis ---------------- */
+
+function renderDefis(root) {
+  const el = document.createElement('div');
+  el.className = 'screen screen-defis';
+  const categories = ['court', 'moyen', 'long', 'legendaire'];
+  const catLabels = { court: 'Courts (20–150 km)', moyen: 'Moyens (150–500 km)', long: 'Longs (500–1500 km)', legendaire: 'Légendaires (1500+ km)' };
+
+  el.innerHTML = `<h1 class="screen-title">Défis</h1>` + categories.map(cat => {
+    const items = STATE.challenges.filter(c => c.category === cat);
+    return `
+      <h2 class="section-title">${catLabels[cat]}</h2>
+      <div class="challenge-list">
+        ${items.map(c => renderChallengeCard(c)).join('')}
+      </div>
+    `;
+  }).join('');
+  root.appendChild(el);
+
+  el.querySelectorAll('.btn-activate-challenge').forEach(btn => {
+    btn.addEventListener('click', () => handleActivateChallenge(btn.dataset.id));
+  });
+}
+
+function renderChallengeCard(c) {
+  const active = c.id === STATE.activeChallengeId;
+  const pct = Math.min(100, Math.round((c.currentKm / c.targetKm) * 100));
+  return `
+    <div class="challenge-item ${active ? 'active' : ''} ${c.completed ? 'completed' : ''}">
+      <div class="challenge-name">${escapeHtml(c.name)}${c.completed ? ' 🏆' : ''}</div>
+      <div class="challenge-desc">${escapeHtml(c.description)}</div>
+      <div class="progress-bar small"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="challenge-foot">
+        <span>${formatKm(c.currentKm)} / ${formatKm(c.targetKm)} km (${pct}%)</span>
+        ${active ? '<span class="badge-pill">Actif</span>' : `<button class="btn-small btn-activate-challenge" data-id="${c.id}">Activer</button>`}
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function handleActivateChallenge(id) {
+  activateChallenge(id);
+  renderCurrentScreen();
+  toast('Nouveau défi actif !');
+}
+
+/* ---------------- Ajouter une course ---------------- */
+
+function renderAjouter(root) {
+  const el = document.createElement('div');
+  el.className = 'screen screen-ajouter';
+  const today = new Date().toISOString().slice(0, 10);
+  const nowTime = new Date().toTimeString().slice(0, 5);
+  el.innerHTML = `
+    <h1 class="screen-title">Ajouter une course</h1>
+    <form id="run-form" class="run-form">
+      <label>Date <input type="date" name="date" value="${today}" required></label>
+      <label>Heure de départ <input type="time" name="time" value="${nowTime}" required></label>
+      <label>Distance (km) <input type="number" step="0.01" min="0.01" name="distanceKm" required></label>
+      <label>Durée (minutes) <input type="number" step="0.1" min="0.1" name="durationMin" required></label>
+      <label>Dénivelé positif (m) <input type="number" step="1" min="0" name="elevationGain" value="0"></label>
+      <label>Pays <input type="text" name="country" value="France" required></label>
+      <label>Département (si France) <input type="text" name="department" placeholder="ex : 75, 2A, 971"></label>
+      <label>Météo
+        <select name="weather">
+          <option value="">—</option>
+          <option value="rain">Pluie</option>
+          <option value="heavy_rain">Forte pluie</option>
+          <option value="wind">Vent important</option>
+          <option value="heat">Forte chaleur</option>
+          <option value="cold">Sous zéro</option>
+          <option value="snow">Neige</option>
+          <option value="fog">Brouillard</option>
+          <option value="special">Particulière</option>
+          <option value="sunrise">Lever du soleil</option>
+          <option value="sunset">Coucher du soleil</option>
+        </select>
+      </label>
+      <label class="checkbox-row"><input type="checkbox" name="officialRace"> Course officielle</label>
+      <label>Type de course officielle
+        <select name="officialRaceType">
+          <option value="">—</option>
+          <option value="route">Route</option>
+          <option value="nature">Nature</option>
+          <option value="trail">Trail</option>
+          <option value="nocturne">Nocturne</option>
+          <option value="caritative">Caritative</option>
+        </select>
+      </label>
+      <label>Commentaire <textarea name="comment" rows="2"></textarea></label>
+      <button type="submit" class="btn-primary">Enregistrer la course</button>
+    </form>
+  `;
+  root.appendChild(el);
+  document.getElementById('run-form').addEventListener('submit', handleRunSubmit);
+}
+
+function handleRunSubmit(ev) {
+  ev.preventDefault();
+  const form = ev.target;
+  const fd = new FormData(form);
+  const runData = {
+    date: fd.get('date'),
+    time: fd.get('time'),
+    distanceKm: parseFloat(fd.get('distanceKm')),
+    durationMin: parseFloat(fd.get('durationMin')),
+    elevationGain: parseFloat(fd.get('elevationGain') || 0),
+    country: (fd.get('country') || '').trim(),
+    department: (fd.get('department') || '').trim(),
+    weather: fd.get('weather') || '',
+    officialRace: fd.get('officialRace') === 'on',
+    officialRaceType: fd.get('officialRaceType') || '',
+    comment: (fd.get('comment') || '').trim(),
+  };
+  if (!runData.distanceKm || !runData.durationMin) {
+    toast('Distance et durée sont requises.', true);
+    return;
+  }
+  const { newBadges } = addRun(runData);
+  updateChallengeProgress();
+  saveData();
+  form.reset();
+  toast('Course enregistrée !');
+  if (newBadges.length) {
+    showBadgeUnlockSequence(newBadges);
+  } else {
+    goToScreen('accueil');
+  }
+}
+
+/* ---------------- Animation de déblocage ---------------- */
+
+function showBadgeUnlockSequence(badges) {
+  let idx = 0;
+  function showNext() {
+    if (idx >= badges.length) { goToScreen('accueil'); return; }
+    const badge = badges[idx];
+    idx++;
+    const overlay = document.createElement('div');
+    overlay.className = 'unlock-overlay';
+    overlay.innerHTML = `
+      <div class="unlock-card">
+        <div class="unlock-label">BADGE DÉBLOQUÉ !</div>
+        <div class="unlock-image">${badgeImageOrPlaceholder(badge)}</div>
+        <div class="unlock-name">${badge.name}</div>
+        <div class="unlock-condition">${badge.condition || badge.description || ''}</div>
+        <div class="unlock-date">${formatDate(badge.unlockedDate)}</div>
+        <button class="btn-primary">Continuer</button>
+      </div>
+    `;
+    overlay.querySelector('button').addEventListener('click', () => {
+      overlay.remove();
+      showNext();
+    });
+    document.body.appendChild(overlay);
+  }
+  showNext();
+}
+
+function badgeImageOrPlaceholder(badge) {
+  // Si un fichier image existe au chemin indiqué (badge.image), on l'affiche.
+  // Sinon (fichier absent), l'événement onerror bascule automatiquement sur
+  // un placeholder stylé basé sur la catégorie — l'appli fonctionne donc
+  // même si aucune image n'a encore été créée.
+  const icon = categoryIcon(badge.collection);
+  return `<div class="badge-image-wrap">
+    <img src="${escapeHtml(badge.image)}" alt="${escapeHtml(badge.name)}" class="badge-real-image"
+         onerror="this.parentElement.innerHTML='<div class=&quot;badge-placeholder&quot;><span class=&quot;badge-icon&quot;>${icon}</span></div>'">
+  </div>`;
+}
+
+function categoryIcon(collection) {
+  const icons = {
+    distance_unique: '🐾', regularite: '🔥', vitesse: '⚡', denivele: '⛰️',
+    departements: '📍', pays: '🌍', jours_particuliers: '📅', horaires: '🕐',
+    meteo: '☁️', distance_cumulee: '🛣️', courses_officielles: '🏅', hebdomadaire: '✨',
+  };
+  return icons[collection] || '🏆';
+}
+
+/* ---------------- Collection ---------------- */
+
+function renderCollection(root) {
+  const el = document.createElement('div');
+  el.className = 'screen screen-collection';
+  const allBadges = [...STATE.badges, ...STATE.weeklyBadges];
+  const unlockedCount = allBadges.filter(b => b.unlocked).length;
+
+  const byCategory = {};
+  allBadges.forEach(b => { (byCategory[b.collection] = byCategory[b.collection] || []).push(b); });
+
+  el.innerHTML = `
+    <div class="collection-header">
+      <div class="collection-eyebrow">Badges obtenus</div>
+      <div class="collection-count">${unlockedCount} / ${allBadges.length}</div>
+    </div>
+    ${Object.entries(byCategory).map(([cat, badges]) => `
+      <h2 class="section-title">${CATEGORY_LABELS[cat] || cat}</h2>
+      <div class="badge-grid">
+        ${badges.map(b => renderBadgeTile(b)).join('')}
+      </div>
+    `).join('')}
+  `;
+  root.appendChild(el);
+
+  el.querySelectorAll('.badge-tile').forEach(tile => {
+    tile.addEventListener('click', () => openBadgeSheet(tile.dataset.id, tile.dataset.weekly === '1'));
+  });
+}
+
+function renderBadgeTile(b) {
+  return `
+    <div class="badge-tile ${b.unlocked ? 'unlocked' : 'locked'}" data-id="${b.id}" data-weekly="${b.year ? '1' : '0'}">
+      <div class="badge-tile-icon">${categoryIcon(b.collection)}</div>
+      ${!b.unlocked ? '<div class="lock-icon">🔒</div>' : ''}
+      <div class="badge-tile-name">${b.name}</div>
+    </div>
+  `;
+}
+
+function openBadgeSheet(id, isWeekly) {
+  const badge = (isWeekly ? STATE.weeklyBadges : STATE.badges).find(b => b.id === id);
+  if (!badge) return;
+  const progress = badgeProgressText(badge);
+  const sheet = document.createElement('div');
+  sheet.className = 'unlock-overlay';
+  sheet.innerHTML = `
+    <div class="unlock-card">
+      <div class="unlock-image">${badgeImageOrPlaceholder(badge)}</div>
+      <div class="unlock-name">${badge.name}</div>
+      <div class="unlock-condition">${badge.condition || badge.description || ''}</div>
+      ${badge.unlocked
+        ? `<div class="unlock-date">Débloqué le ${formatDate(badge.unlockedDate)}</div>`
+        : `<div class="unlock-date">${progress}</div>`}
+      <button class="btn-primary">Fermer</button>
+    </div>
+  `;
+  sheet.querySelector('button').addEventListener('click', () => sheet.remove());
+  document.body.appendChild(sheet);
+}
+
+function badgeProgressText(badge) {
+  const stats = calculateStats();
+  const ctx = { runs: STATE.runs, stats };
+  const checker = BADGE_CHECKERS[badge.collection];
+  if (!checker) return 'Progression indisponible';
+  const result = checker(badge, ctx);
+  if (badge.target != null && result.value != null && typeof result.value === 'number') {
+    const unit = badge.unit === 'min/km' ? '' : ` ${badge.unit || ''}`;
+    if (badge.unit === 'min/km') {
+      return `Meilleure allure : ${paceToString(result.value)} (objectif ${badge.target})`;
+    }
+    return `Progression : ${formatKm(result.value)} / ${badge.target}${unit}`;
+  }
+  return 'Non débloqué pour le moment';
+}
+
+/* ---------------- Statistiques ---------------- */
+
+function renderStats(root) {
+  const stats = calculateStats();
+  const el = document.createElement('div');
+  el.className = 'screen screen-stats';
+  el.innerHTML = `
+    <h1 class="screen-title">Statistiques</h1>
+    <div class="stat-grid full">
+      ${statTile('Sorties', stats.totalRuns)}
+      ${statTile('Km totaux', formatKm(stats.totalKm))}
+      ${statTile('Temps total', formatDuration(stats.totalDuration))}
+      ${statTile('D+ total', `${Math.round(stats.totalElevation)} m`)}
+      ${statTile('Plus longue sortie', `${formatKm(stats.longestRun)} km`)}
+      ${statTile('Meilleure allure', stats.bestPace ? paceToString(stats.bestPace) : '—')}
+      ${statTile('Plus gros D+', `${Math.round(stats.biggestElevation)} m`)}
+      ${statTile('Km cette semaine', formatKm(stats.kmWeek))}
+      ${statTile('Km ce mois', formatKm(stats.kmMonth))}
+      ${statTile('Km cette année', formatKm(stats.kmYear))}
+      ${statTile('Départements visités', stats.departmentsVisited.length)}
+      ${statTile('Pays visités', stats.countriesVisited.length)}
+      ${statTile('Courses officielles', stats.officialCount)}
+      ${statTile('Badges obtenus', [...STATE.badges, ...STATE.weeklyBadges].filter(b => b.unlocked).length)}
+    </div>
+
+    <h2 class="section-title">Historique</h2>
+    <div class="history-list">
+      ${STATE.runs.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).map(r => renderHistoryRow(r)).join('') || '<div class="empty-state">Aucune course enregistrée pour le moment.</div>'}
+    </div>
+
+    <div class="data-actions">
+      <button class="btn-secondary" id="btn-export">Exporter les données (JSON)</button>
+      <label class="btn-secondary file-label">Importer une sauvegarde
+        <input type="file" id="btn-import" accept="application/json" hidden>
+      </label>
+    </div>
+  `;
+  root.appendChild(el);
+
+  document.getElementById('btn-export').addEventListener('click', exportData);
+  document.getElementById('btn-import').addEventListener('change', (e) => {
+    if (e.target.files[0]) importData(e.target.files[0]);
+  });
+
+  el.querySelectorAll('.history-row').forEach(row => {
+    row.addEventListener('click', () => handleHistoryRowClick(row.dataset.id));
+  });
+}
+
+function statTile(label, value) {
+  return `<div class="stat-tile"><div class="stat-num">${value}</div><div class="stat-label">${label}</div></div>`;
+}
+
+function renderHistoryRow(r) {
+  return `
+    <div class="history-row" data-id="${r.id}">
+      <div class="history-date">${formatDate(r.date)}</div>
+      <div class="history-main">${formatKm(r.distanceKm)} km · ${formatDuration(r.durationMin)} · ${paceToString(r.paceMinPerKm)}</div>
+      <div class="history-sub">${r.department ? 'Dép. ' + r.department + ' · ' : ''}${r.country}${r.elevationGain ? ' · D+ ' + Math.round(r.elevationGain) + ' m' : ''}</div>
+    </div>
+  `;
+}
+
+function handleHistoryRowClick(runId) {
+  const run = STATE.runs.find(r => r.id === runId);
+  if (!run) return;
+  const action = confirm(`Course du ${formatDate(run.date)} — ${formatKm(run.distanceKm)} km.\n\nOK pour supprimer, Annuler pour garder.`);
+  if (action) {
+    deleteRun(runId);
+    renderCurrentScreen();
+    toast('Course supprimée, statistiques recalculées.');
+  }
+}
+
+/* ---------------- Formatage ---------------- */
+
+function formatKm(n) {
+  if (n == null) return '—';
+  return (Math.round(n * 10) / 10).toLocaleString('fr-FR');
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function formatDuration(minutes) {
+  if (minutes == null) return '—';
+  const h = Math.floor(minutes / 60);
+  const m = Math.round(minutes % 60);
+  return h > 0 ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`;
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+
+</script>
+</body>
+</html>
