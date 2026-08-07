@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"> 
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E1210">
 <title>RunQuest — Motivation course à pied</title>
@@ -277,6 +277,11 @@ button, input, select, textarea {
   min-height: 48px;
 }
 .run-form textarea { min-height: 72px; resize: vertical; }
+.duration-row { display: flex; align-items: center; gap: 8px; }
+.duration-row input { flex: 1; min-width: 0; }
+.duration-sep { font-size: 12px; color: var(--text-faint); font-weight: 600; }
+.tcx-import-label { display: block; margin-bottom: 6px; text-align: center; cursor: pointer; }
+.tcx-hint { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 18px; }
 .checkbox-row { flex-direction: row; align-items: center; gap: 10px; }
 .checkbox-row input { width: 22px; height: 22px; min-height: unset; }
 
@@ -420,6 +425,19 @@ button, input, select, textarea {
 .unlock-name { font-weight: 700; font-size: 18px; margin-bottom: 6px; }
 .unlock-condition { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
 .unlock-date { font-size: 12px; color: var(--text-faint); margin-bottom: 18px; }
+.birthday-input {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-size: 16px;
+  color: var(--text);
+  width: 100%;
+  margin: 14px 0;
+  min-height: 46px;
+}
+.birthday-actions { display: flex; gap: 10px; }
+.birthday-actions .btn-secondary, .birthday-actions .btn-primary { flex: 1; margin-top: 0; }
 
 /* ---------------- Toast ---------------- */
 
@@ -896,133 +914,143 @@ const BADGES = [
   },
   {
     "id": "elevation_01",
-    "name": "Colline",
+    "name": "Le Lézard des rochers",
     "collection": "denivele",
     "description": "Cumuler 50 m de dénivelé positif sur une seule sortie",
-    "condition": "D+ ≥ 50 m sur une sortie",
+    "condition": "Première vraie montée — D+ ≥ 50 m sur une sortie",
     "target": 50,
     "unit": "m",
     "image": "assets/badges/elevation_01.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "montagne"
+    "theme": "montagne",
+    "visual": "Lézard accroché à une pierre, petit relief en arrière-plan, bronze"
   },
   {
     "id": "elevation_02",
-    "name": "Coteau",
+    "name": "Le Chevreau",
     "collection": "denivele",
     "description": "Cumuler 100 m de dénivelé positif sur une seule sortie",
-    "condition": "D+ ≥ 100 m sur une sortie",
+    "condition": "Début de la grimpe — D+ ≥ 100 m sur une sortie",
     "target": 100,
     "unit": "m",
     "image": "assets/badges/elevation_02.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "montagne"
+    "theme": "montagne",
+    "visual": "Jeune chèvre sur une pente, badge cuivre"
   },
   {
     "id": "elevation_03",
-    "name": "Butte",
+    "name": "Le Renard des collines",
     "collection": "denivele",
     "description": "Cumuler 200 m de dénivelé positif sur une seule sortie",
-    "condition": "D+ ≥ 200 m sur une sortie",
+    "condition": "À l'aise sur terrain vallonné — D+ ≥ 200 m sur une sortie",
     "target": 200,
     "unit": "m",
     "image": "assets/badges/elevation_03.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "montagne"
+    "theme": "montagne",
+    "visual": "Renard sur une crête, collines superposées, argent"
   },
   {
     "id": "elevation_04",
-    "name": "Piémont",
+    "name": "Le Mouflon",
     "collection": "denivele",
     "description": "Cumuler 300 m de dénivelé positif sur une seule sortie",
-    "condition": "D+ ≥ 300 m sur une sortie",
+    "condition": "Bonne capacité en montée — D+ ≥ 300 m sur une sortie",
     "target": 300,
     "unit": "m",
     "image": "assets/badges/elevation_04.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "montagne"
+    "theme": "montagne",
+    "visual": "Mouflon sur un promontoire rocheux, argent renforcé"
   },
   {
     "id": "elevation_05",
-    "name": "Contrefort",
+    "name": "Le Bouquetin",
     "collection": "denivele",
     "description": "Cumuler 500 m de dénivelé positif sur une seule sortie",
-    "condition": "D+ ≥ 500 m sur une sortie",
+    "condition": "Premier gros cap vertical — D+ ≥ 500 m sur une sortie",
     "target": 500,
     "unit": "m",
     "image": "assets/badges/elevation_05.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "montagne"
+    "theme": "montagne",
+    "visual": "Bouquetin sur une paroi abrupte, badge doré"
   },
   {
     "id": "elevation_06",
-    "name": "Sommet secondaire",
+    "name": "L'Aigle des cimes",
     "collection": "denivele",
     "description": "Cumuler 750 m de dénivelé positif sur une seule sortie",
-    "condition": "D+ ≥ 750 m sur une sortie",
+    "condition": "On entre dans la vraie montagne — D+ ≥ 750 m sur une sortie",
     "target": 750,
     "unit": "m",
     "image": "assets/badges/elevation_06.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "montagne"
+    "theme": "montagne",
+    "visual": "Aigle au-dessus de sommets, or"
   },
   {
     "id": "elevation_07",
-    "name": "Sommet",
+    "name": "Le Loup des sommets",
     "collection": "denivele",
     "description": "Cumuler 1000 m de dénivelé positif sur une seule sortie",
-    "condition": "D+ ≥ 1000 m sur une sortie",
+    "condition": "Une sortie très exigeante — D+ ≥ 1000 m sur une sortie",
     "target": 1000,
     "unit": "m",
     "image": "assets/badges/elevation_07.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "montagne"
+    "theme": "montagne",
+    "visual": "Loup sur une crête enneigée, couronne montagneuse, or profond"
   },
   {
     "id": "elevation_08",
-    "name": "Haute montagne",
+    "name": "La Panthère des neiges",
     "collection": "denivele",
     "description": "Cumuler 1500 m de dénivelé positif sur une seule sortie",
-    "condition": "D+ ≥ 1500 m sur une sortie",
+    "condition": "Gros niveau de résistance verticale — D+ ≥ 1500 m sur une sortie",
     "target": 1500,
     "unit": "m",
     "image": "assets/badges/elevation_08.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "montagne"
+    "theme": "montagne",
+    "visual": "Panthère des neiges sur falaise, platine"
   },
   {
     "id": "elevation_09",
-    "name": "Pic majeur",
+    "name": "L'Ours des montagnes",
     "collection": "denivele",
     "description": "Cumuler 2000 m de dénivelé positif sur une seule sortie",
-    "condition": "D+ ≥ 2000 m sur une sortie",
+    "condition": "Endurance exceptionnelle en montée — D+ ≥ 2000 m sur une sortie",
     "target": 2000,
     "unit": "m",
     "image": "assets/badges/elevation_09.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "montagne"
+    "theme": "montagne",
+    "visual": "Ours massif devant plusieurs sommets, platine sombre"
   },
   {
     "id": "elevation_10",
-    "name": "Cime légendaire",
+    "name": "Le Dragon des cimes",
     "collection": "denivele",
     "description": "Cumuler 2500 m de dénivelé positif sur une seule sortie",
-    "condition": "D+ ≥ 2500 m sur une sortie",
+    "condition": "Niveau ultime de cette collection — D+ ≥ 2500 m sur une sortie",
     "target": 2500,
     "unit": "m",
     "image": "assets/badges/elevation_10.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "montagne"
+    "theme": "montagne",
+    "visual": "Dragon lové autour d'un sommet, nuages sous lui, badge légendaire"
   },
   {
     "id": "dept_01",
@@ -3140,7 +3168,7 @@ const BADGES = [
   },
   {
     "id": "day_new_year",
-    "name": "Premier départ",
+    "name": "🎆 Premier départ",
     "collection": "jours_particuliers",
     "description": "Courir le 1er janvier",
     "condition": "Courir le 1er janvier",
@@ -3149,11 +3177,12 @@ const BADGES = [
     "image": "assets/badges/day_new_year.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "01-01"
+    "date": "01-01",
+    "visual": "Feux d'artifice au-dessus d'une route, avec « 01.01 »"
   },
   {
     "id": "day_valentine",
-    "name": "Saint-Valentin",
+    "name": "❤️ Course de cœur",
     "collection": "jours_particuliers",
     "description": "Courir le 14 février",
     "condition": "Courir le 14 février",
@@ -3162,11 +3191,12 @@ const BADGES = [
     "image": "assets/badges/day_valentine.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "02-14"
+    "date": "02-14",
+    "visual": "Cœur formé par un tracé GPS, chaussures au centre"
   },
   {
     "id": "day_women_rights",
-    "name": "Droits des femmes",
+    "name": "♀️ Élan pour l'égalité",
     "collection": "jours_particuliers",
     "description": "Courir le 8 mars",
     "condition": "Courir le 8 mars",
@@ -3175,11 +3205,12 @@ const BADGES = [
     "image": "assets/badges/day_women_rights.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "03-08"
+    "date": "03-08",
+    "visual": "Symbole féminin intégré dans une piste de course"
   },
   {
     "id": "day_spring",
-    "name": "Arrivée du printemps",
+    "name": "🌸 Réveil printanier",
     "collection": "jours_particuliers",
     "description": "Courir vers l'équinoxe de printemps (date configurable)",
     "condition": "Courir vers l'équinoxe de printemps (date configurable)",
@@ -3188,11 +3219,12 @@ const BADGES = [
     "image": "assets/badges/day_spring.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "03-20"
+    "date": "03-20",
+    "visual": "Chaussure traversant des fleurs et jeunes pousses"
   },
   {
     "id": "day_april_fool",
-    "name": "Poisson d'avril",
+    "name": "🐟 La course improbable",
     "collection": "jours_particuliers",
     "description": "Courir le 1er avril",
     "condition": "Courir le 1er avril",
@@ -3201,11 +3233,12 @@ const BADGES = [
     "image": "assets/badges/day_april_fool.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "04-01"
+    "date": "04-01",
+    "visual": "Poisson stylisé avec baskets, badge volontairement humoristique"
   },
   {
     "id": "day_labour",
-    "name": "Fête du travail",
+    "name": "🌿 Brin de course",
     "collection": "jours_particuliers",
     "description": "Courir le 1er mai",
     "condition": "Courir le 1er mai",
@@ -3214,11 +3247,12 @@ const BADGES = [
     "image": "assets/badges/day_labour.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "05-01"
+    "date": "05-01",
+    "visual": "Muguet entourant une petite chaussure"
   },
   {
     "id": "day_victory_1945",
-    "name": "Victoire 1945",
+    "name": "🇫🇷 Mémoire",
     "collection": "jours_particuliers",
     "description": "Courir le 8 mai",
     "condition": "Courir le 8 mai",
@@ -3227,11 +3261,12 @@ const BADGES = [
     "image": "assets/badges/day_victory_1945.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "05-08"
+    "date": "05-08",
+    "visual": "Bleuet de France, ruban tricolore très discret"
   },
   {
     "id": "day_music",
-    "name": "Fête de la musique",
+    "name": "☀️ Solstice Runner",
     "collection": "jours_particuliers",
     "description": "Courir le 21 juin",
     "condition": "Courir le 21 juin",
@@ -3240,11 +3275,12 @@ const BADGES = [
     "image": "assets/badges/day_music.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "06-21"
+    "date": "06-21",
+    "visual": "Soleil avec route transformée en portée musicale"
   },
   {
     "id": "day_bastille",
-    "name": "Fête nationale",
+    "name": "🇫🇷 Tricolore",
     "collection": "jours_particuliers",
     "description": "Courir le 14 juillet",
     "condition": "Courir le 14 juillet",
@@ -3253,11 +3289,12 @@ const BADGES = [
     "image": "assets/badges/day_bastille.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "07-14"
+    "date": "07-14",
+    "visual": "Silhouette de coureur devant des faisceaux bleu-blanc-rouge et feu d'artifice"
   },
   {
     "id": "day_assumption",
-    "name": "Assomption",
+    "name": "🌞 Plein été",
     "collection": "jours_particuliers",
     "description": "Courir le 15 août",
     "condition": "Courir le 15 août",
@@ -3266,11 +3303,12 @@ const BADGES = [
     "image": "assets/badges/day_assumption.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "08-15"
+    "date": "08-15",
+    "visual": "Soleil très lumineux derrière une route estivale"
   },
   {
     "id": "day_september",
-    "name": "Rentrée",
+    "name": "🎒 La Rentrée",
     "collection": "jours_particuliers",
     "description": "Courir le 1er septembre",
     "condition": "Courir le 1er septembre",
@@ -3279,11 +3317,12 @@ const BADGES = [
     "image": "assets/badges/day_september.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "09-01"
+    "date": "09-01",
+    "visual": "Chaussure et chronomètre façon fournitures scolaires, plus ludique"
   },
   {
     "id": "day_autumn",
-    "name": "Arrivée de l'automne",
+    "name": "🍂 Course d'automne",
     "collection": "jours_particuliers",
     "description": "Courir vers l'équinoxe d'automne (date configurable)",
     "condition": "Courir vers l'équinoxe d'automne (date configurable)",
@@ -3292,11 +3331,12 @@ const BADGES = [
     "image": "assets/badges/day_autumn.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "09-22"
+    "date": "09-22",
+    "visual": "Chemin couvert de feuilles orangées"
   },
   {
     "id": "day_halloween",
-    "name": "Halloween",
+    "name": "🎃 Night Runner",
     "collection": "jours_particuliers",
     "description": "Courir le 31 octobre",
     "condition": "Courir le 31 octobre",
@@ -3305,11 +3345,12 @@ const BADGES = [
     "image": "assets/badges/day_halloween.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "10-31"
+    "date": "10-31",
+    "visual": "Citrouille lumineuse, lune, chaussures fantomatiques"
   },
   {
     "id": "day_armistice",
-    "name": "Armistice 1918",
+    "name": "🌺 Souvenir",
     "collection": "jours_particuliers",
     "description": "Courir le 11 novembre",
     "condition": "Courir le 11 novembre",
@@ -3318,11 +3359,12 @@ const BADGES = [
     "image": "assets/badges/day_armistice.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "11-11"
+    "date": "11-11",
+    "visual": "Bleuet et silhouette sobre de coureur"
   },
   {
     "id": "day_winter",
-    "name": "Arrivée de l'hiver",
+    "name": "❄️ Foulée glacée",
     "collection": "jours_particuliers",
     "description": "Courir vers le solstice d'hiver (date configurable)",
     "condition": "Courir vers le solstice d'hiver (date configurable)",
@@ -3331,11 +3373,12 @@ const BADGES = [
     "image": "assets/badges/day_winter.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "12-21"
+    "date": "12-21",
+    "visual": "Chaussure entourée de cristaux de glace"
   },
   {
     "id": "day_christmas_eve",
-    "name": "Veille de Noël",
+    "name": "🎅 Veille de Noël",
     "collection": "jours_particuliers",
     "description": "Courir le 24 décembre",
     "condition": "Courir le 24 décembre",
@@ -3344,11 +3387,12 @@ const BADGES = [
     "image": "assets/badges/day_christmas_eve.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "12-24"
+    "date": "12-24",
+    "visual": "Bonnet de Père Noël posé sur une chaussure"
   },
   {
     "id": "day_christmas",
-    "name": "Noël",
+    "name": "🎄 Christmas Runner",
     "collection": "jours_particuliers",
     "description": "Courir le 25 décembre",
     "condition": "Courir le 25 décembre",
@@ -3357,11 +3401,12 @@ const BADGES = [
     "image": "assets/badges/day_christmas.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "12-25"
+    "date": "12-25",
+    "visual": "Sapin formé par un tracé GPS, cadeaux et médaille rouge/or"
   },
   {
     "id": "day_new_year_eve",
-    "name": "Réveillon",
+    "name": "🥂 Dernière foulée",
     "collection": "jours_particuliers",
     "description": "Courir le 31 décembre",
     "condition": "Courir le 31 décembre",
@@ -3370,11 +3415,12 @@ const BADGES = [
     "image": "assets/badges/day_new_year_eve.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "12-31"
+    "date": "12-31",
+    "visual": "Horloge proche de minuit avec ligne d'arrivée"
   },
   {
     "id": "day_birthday",
-    "name": "Anniversaire",
+    "name": "🎂 Birthday Run",
     "collection": "jours_particuliers",
     "description": "Courir le jour de son anniversaire (date à configurer)",
     "condition": "Courir le jour de son anniversaire (date à configurer)",
@@ -3383,11 +3429,12 @@ const BADGES = [
     "image": "assets/badges/day_birthday.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "configurable"
+    "date": "configurable",
+    "visual": "Gâteau dont les bougies dessinent une piste de course"
   },
   {
     "id": "day_leap",
-    "name": "29 février",
+    "name": "💎 Le Jour Rare",
     "collection": "jours_particuliers",
     "description": "Badge ultra rare : courir un 29 février",
     "condition": "Badge ultra rare : courir un 29 février",
@@ -3396,7 +3443,8 @@ const BADGES = [
     "image": "assets/badges/day_leap.png",
     "unlocked": false,
     "unlockedDate": null,
-    "date": "02-29"
+    "date": "02-29",
+    "visual": "Calendrier « 29 FEB », diamant et finition holographique"
   },
   {
     "id": "time_sunrise",
@@ -3471,128 +3519,8 @@ const BADGES = [
     "unlockedDate": null
   },
   {
-    "id": "weather_rain",
-    "name": "Sous la pluie",
-    "collection": "meteo",
-    "description": "Courir sous la pluie",
-    "condition": "Courir sous la pluie",
-    "target": null,
-    "unit": null,
-    "image": "assets/badges/weather_rain.png",
-    "unlocked": false,
-    "unlockedDate": null
-  },
-  {
-    "id": "weather_heavy_rain",
-    "name": "Pluie battante",
-    "collection": "meteo",
-    "description": "Courir sous une forte pluie",
-    "condition": "Courir sous une forte pluie",
-    "target": null,
-    "unit": null,
-    "image": "assets/badges/weather_heavy_rain.png",
-    "unlocked": false,
-    "unlockedDate": null
-  },
-  {
-    "id": "weather_wind",
-    "name": "Vent de face",
-    "collection": "meteo",
-    "description": "Courir par vent important",
-    "condition": "Courir par vent important",
-    "target": null,
-    "unit": null,
-    "image": "assets/badges/weather_wind.png",
-    "unlocked": false,
-    "unlockedDate": null
-  },
-  {
-    "id": "weather_heat",
-    "name": "Chaleur intense",
-    "collection": "meteo",
-    "description": "Courir par forte chaleur (pensez à vous hydrater)",
-    "condition": "Courir par forte chaleur (pensez à vous hydrater)",
-    "target": null,
-    "unit": null,
-    "image": "assets/badges/weather_heat.png",
-    "unlocked": false,
-    "unlockedDate": null
-  },
-  {
-    "id": "weather_cold",
-    "name": "Sous zéro",
-    "collection": "meteo",
-    "description": "Courir par température sous 0°C",
-    "condition": "Courir par température sous 0°C",
-    "target": null,
-    "unit": null,
-    "image": "assets/badges/weather_cold.png",
-    "unlocked": false,
-    "unlockedDate": null
-  },
-  {
-    "id": "weather_snow",
-    "name": "Sous la neige",
-    "collection": "meteo",
-    "description": "Courir sous la neige",
-    "condition": "Courir sous la neige",
-    "target": null,
-    "unit": null,
-    "image": "assets/badges/weather_snow.png",
-    "unlocked": false,
-    "unlockedDate": null
-  },
-  {
-    "id": "weather_fog",
-    "name": "Dans la brume",
-    "collection": "meteo",
-    "description": "Courir dans le brouillard",
-    "condition": "Courir dans le brouillard",
-    "target": null,
-    "unit": null,
-    "image": "assets/badges/weather_fog.png",
-    "unlocked": false,
-    "unlockedDate": null
-  },
-  {
-    "id": "weather_special",
-    "name": "Ciel particulier",
-    "collection": "meteo",
-    "description": "Courir dans des conditions météo remarquables",
-    "condition": "Courir dans des conditions météo remarquables",
-    "target": null,
-    "unit": null,
-    "image": "assets/badges/weather_special.png",
-    "unlocked": false,
-    "unlockedDate": null
-  },
-  {
-    "id": "weather_sunrise",
-    "name": "Aube",
-    "collection": "meteo",
-    "description": "Courir au lever du soleil",
-    "condition": "Courir au lever du soleil",
-    "target": null,
-    "unit": null,
-    "image": "assets/badges/weather_sunrise.png",
-    "unlocked": false,
-    "unlockedDate": null
-  },
-  {
-    "id": "weather_sunset",
-    "name": "Crépuscule",
-    "collection": "meteo",
-    "description": "Courir au coucher du soleil",
-    "condition": "Courir au coucher du soleil",
-    "target": null,
-    "unit": null,
-    "image": "assets/badges/weather_sunset.png",
-    "unlocked": false,
-    "unlockedDate": null
-  },
-  {
     "id": "cumulative_01",
-    "name": "Petite route",
+    "name": "Premier Horizon",
     "collection": "distance_cumulee",
     "description": "Parcourir 25 km cumulés depuis le début",
     "condition": "Distance totale ≥ 25 km",
@@ -3601,11 +3529,12 @@ const BADGES = [
     "image": "assets/badges/cumulative_01.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "route_to_planete"
+    "theme": "route_to_planete",
+    "visual": "Une petite route qui disparaît derrière une colline"
   },
   {
     "id": "cumulative_02",
-    "name": "Route de campagne",
+    "name": "Cap des 50",
     "collection": "distance_cumulee",
     "description": "Parcourir 50 km cumulés depuis le début",
     "condition": "Distance totale ≥ 50 km",
@@ -3614,11 +3543,12 @@ const BADGES = [
     "image": "assets/badges/cumulative_02.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "route_to_planete"
+    "theme": "route_to_planete",
+    "visual": "Une route traversant plusieurs collines"
   },
   {
     "id": "cumulative_03",
-    "name": "Grande route",
+    "name": "Centurion",
     "collection": "distance_cumulee",
     "description": "Parcourir 100 km cumulés depuis le début",
     "condition": "Distance totale ≥ 100 km",
@@ -3627,11 +3557,12 @@ const BADGES = [
     "image": "assets/badges/cumulative_03.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "route_to_planete"
+    "theme": "route_to_planete",
+    "visual": "Une borne kilométrique marquée 100"
   },
   {
     "id": "cumulative_04",
-    "name": "Traversée régionale",
+    "name": "Grand Voyageur",
     "collection": "distance_cumulee",
     "description": "Parcourir 250 km cumulés depuis le début",
     "condition": "Distance totale ≥ 250 km",
@@ -3640,11 +3571,12 @@ const BADGES = [
     "image": "assets/badges/cumulative_04.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "route_to_planete"
+    "theme": "route_to_planete",
+    "visual": "Une route serpentant entre montagnes"
   },
   {
     "id": "cumulative_05",
-    "name": "Voyage national",
+    "name": "Demi-Millier",
     "collection": "distance_cumulee",
     "description": "Parcourir 500 km cumulés depuis le début",
     "condition": "Distance totale ≥ 500 km",
@@ -3653,11 +3585,12 @@ const BADGES = [
     "image": "assets/badges/cumulative_05.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "route_to_planete"
+    "theme": "route_to_planete",
+    "visual": "Une grande carte stylisée avec une longue trace GPS"
   },
   {
     "id": "cumulative_06",
-    "name": "Traversée continentale",
+    "name": "Longue Route",
     "collection": "distance_cumulee",
     "description": "Parcourir 750 km cumulés depuis le début",
     "condition": "Distance totale ≥ 750 km",
@@ -3666,11 +3599,12 @@ const BADGES = [
     "image": "assets/badges/cumulative_06.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "route_to_planete"
+    "theme": "route_to_planete",
+    "visual": "Une autoroute/route traversant plusieurs paysages"
   },
   {
     "id": "cumulative_07",
-    "name": "Odyssée",
+    "name": "Le Millier",
     "collection": "distance_cumulee",
     "description": "Parcourir 1000 km cumulés depuis le début",
     "condition": "Distance totale ≥ 1000 km",
@@ -3679,11 +3613,12 @@ const BADGES = [
     "image": "assets/badges/cumulative_07.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "route_to_planete"
+    "theme": "route_to_planete",
+    "visual": "Un globe avec une ligne de trajet autour"
   },
   {
     "id": "cumulative_08",
-    "name": "Tour du monde en modèle réduit",
+    "name": "Explorateur",
     "collection": "distance_cumulee",
     "description": "Parcourir 2500 km cumulés depuis le début",
     "condition": "Distance totale ≥ 2500 km",
@@ -3692,11 +3627,12 @@ const BADGES = [
     "image": "assets/badges/cumulative_08.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "route_to_planete"
+    "theme": "route_to_planete",
+    "visual": "Plusieurs continents reliés par une ligne de course"
   },
   {
     "id": "cumulative_09",
-    "name": "Exploration planétaire",
+    "name": "Grand Tour",
     "collection": "distance_cumulee",
     "description": "Parcourir 5000 km cumulés depuis le début",
     "condition": "Distance totale ≥ 5000 km",
@@ -3705,11 +3641,12 @@ const BADGES = [
     "image": "assets/badges/cumulative_09.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "route_to_planete"
+    "theme": "route_to_planete",
+    "visual": "Terre vue de l'espace avec plusieurs tracés lumineux"
   },
   {
     "id": "cumulative_10",
-    "name": "Voyage interstellaire",
+    "name": "Sans Frontières",
     "collection": "distance_cumulee",
     "description": "Parcourir 10000 km cumulés depuis le début",
     "condition": "Distance totale ≥ 10000 km",
@@ -3718,7 +3655,8 @@ const BADGES = [
     "image": "assets/badges/cumulative_10.png",
     "unlocked": false,
     "unlockedDate": null,
-    "theme": "route_to_planete"
+    "theme": "route_to_planete",
+    "visual": "Planète entière entourée d'un anneau de course"
   },
   {
     "id": "official_first",
@@ -3730,7 +3668,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_first.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Un dossard épinglé avec le chiffre 1"
   },
   {
     "id": "official_first_5k",
@@ -3742,7 +3681,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_first_5k.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Une arche d'arrivée avec « 5K »"
   },
   {
     "id": "official_first_10k",
@@ -3754,7 +3694,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_first_10k.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Une arche plus imposante avec chronomètre"
   },
   {
     "id": "official_first_half",
@@ -3766,7 +3707,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_first_half.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Une grande médaille « 21.1 » avec ruban"
   },
   {
     "id": "official_first_nature",
@@ -3778,7 +3720,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_first_nature.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Dossard devant un chemin forestier"
   },
   {
     "id": "official_first_trail",
@@ -3790,7 +3733,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_first_trail.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Dossard devant un sommet montagneux"
   },
   {
     "id": "official_first_night",
@@ -3802,7 +3746,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_first_night.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Arche éclairée sous la lune"
   },
   {
     "id": "official_first_charity",
@@ -3814,7 +3759,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_first_charity.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Dossard accompagné d'un cœur"
   },
   {
     "id": "official_first_abroad",
@@ -3826,7 +3772,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_first_abroad.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Dossard + globe + petit avion stylisé"
   },
   {
     "id": "official_10",
@@ -3838,7 +3785,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_10.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Une pile de 10 dossards"
   },
   {
     "id": "official_25",
@@ -3850,7 +3798,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_25.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Une couronne faite de dossards"
   },
   {
     "id": "official_50",
@@ -3862,7 +3811,8 @@ const BADGES = [
     "unit": null,
     "image": "assets/badges/official_50.png",
     "unlocked": false,
-    "unlockedDate": null
+    "unlockedDate": null,
+    "visual": "Une arche avec 50 petites étoiles"
   },
   {
     "id": "official_100",
@@ -3873,6 +3823,103 @@ const BADGES = [
     "target": null,
     "unit": null,
     "image": "assets/badges/official_100.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Un mur de dossards + trophée central"
+  },
+  {
+    "id": "weather_pluie_fine",
+    "name": "Pluie fine",
+    "collection": "meteo",
+    "description": "Courir sous la pluie",
+    "condition": "Courir sous la pluie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_pluie_fine.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_deluge",
+    "name": "Déluge",
+    "collection": "meteo",
+    "description": "Courir sous une forte pluie",
+    "condition": "Courir sous une forte pluie",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_deluge.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_vent_face",
+    "name": "Vent de face",
+    "collection": "meteo",
+    "description": "Courir avec un vent soutenu",
+    "condition": "Courir avec un vent soutenu",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_vent_face.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_canicule",
+    "name": "Canicule",
+    "collection": "meteo",
+    "description": "Courir par forte chaleur (pensez à vous hydrater)",
+    "condition": "Courir par forte chaleur (pensez à vous hydrater)",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_canicule.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_grand_froid",
+    "name": "Grand froid",
+    "collection": "meteo",
+    "description": "Courir sous 0°C",
+    "condition": "Courir sous 0°C",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_grand_froid.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_neige",
+    "name": "Neige",
+    "collection": "meteo",
+    "description": "Courir pendant qu'il neige",
+    "condition": "Courir pendant qu'il neige",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_neige.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_brouillard",
+    "name": "Brouillard",
+    "collection": "meteo",
+    "description": "Courir dans le brouillard",
+    "condition": "Courir dans le brouillard",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_brouillard.png",
+    "unlocked": false,
+    "unlockedDate": null
+  },
+  {
+    "id": "weather_orage_loin",
+    "name": "Orage au loin",
+    "collection": "meteo",
+    "description": "Orage visible à distance, dans des conditions sûres — ne jamais courir sous un orage proche",
+    "condition": "Orage visible à distance, dans des conditions sûres — ne jamais courir sous un orage proche",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/weather_orage_loin.png",
     "unlocked": false,
     "unlockedDate": null
   }
@@ -4901,19 +4948,29 @@ function mergeWithDefaults(saved) {
   const fresh = DEFAULT_STATE();
   const merged = {
     runs: saved.runs || [],
-    badges: mergeById(fresh.badges, saved.badges || []),
-    weeklyBadges: mergeById(fresh.weeklyBadges, saved.weeklyBadges || []),
-    challenges: mergeById(fresh.challenges, saved.challenges || []),
+    badges: mergeById(fresh.badges, saved.badges || [], ['unlocked', 'unlockedDate']),
+    weeklyBadges: mergeById(fresh.weeklyBadges, saved.weeklyBadges || [], ['unlocked', 'unlockedDate']),
+    challenges: mergeById(fresh.challenges, saved.challenges || [], ['currentKm', 'checkpointsReached', 'completed', 'completedDate', 'startTotalKm']),
     activeChallengeId: saved.activeChallengeId || null,
-    settings: Object.assign({ birthday: null }, saved.settings || {}),
+    settings: Object.assign({ birthday: null, birthdayAsked: false }, saved.settings || {}),
   };
   return merged;
 }
 
-function mergeById(freshArr, savedArr) {
+// Ne conserve QUE les champs de progression indiqués dans keepKeys depuis la
+// sauvegarde ; tout le reste (nom, description, image...) vient toujours de
+// la définition actuelle du code, pour que les mises à jour de contenu
+// (renommage d'un badge, etc.) s'appliquent bien même aux joueurs existants.
+function mergeById(freshArr, savedArr, keepKeys) {
   const savedById = {};
   savedArr.forEach(item => { savedById[item.id] = item; });
-  return freshArr.map(item => savedById[item.id] ? Object.assign({}, item, savedById[item.id]) : item);
+  return freshArr.map(item => {
+    const saved = savedById[item.id];
+    if (!saved) return item;
+    const merged = Object.assign({}, item);
+    keepKeys.forEach(k => { if (saved[k] !== undefined) merged[k] = saved[k]; });
+    return merged;
+  });
 }
 
 function exportData() {
@@ -5351,6 +5408,38 @@ function initApp() {
   saveData();
   bindNavigation();
   renderCurrentScreen();
+  maybeAskBirthday();
+}
+
+function maybeAskBirthday() {
+  if (STATE.settings.birthdayAsked) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'unlock-overlay';
+  overlay.innerHTML = `
+    <div class="unlock-card">
+      <div class="unlock-label">BIENVENUE 🎉</div>
+      <div class="unlock-name">Ta date d'anniversaire ?</div>
+      <div class="unlock-condition">Pour débloquer le badge « 🎂 Birthday Run » le jour venu. Uniquement stocké dans ton navigateur, jamais envoyé nulle part.</div>
+      <input type="date" id="birthday-input" class="birthday-input">
+      <div class="birthday-actions">
+        <button class="btn-secondary" id="birthday-skip">Plus tard</button>
+        <button class="btn-primary" id="birthday-save">Valider</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#birthday-skip').addEventListener('click', () => {
+    STATE.settings.birthdayAsked = true;
+    saveData();
+    overlay.remove();
+  });
+  overlay.querySelector('#birthday-save').addEventListener('click', () => {
+    const val = overlay.querySelector('#birthday-input').value;
+    if (val) STATE.settings.birthday = val.slice(5); // on ne garde que MM-DD, pas l'année
+    STATE.settings.birthdayAsked = true;
+    saveData();
+    overlay.remove();
+  });
 }
 
 function bindNavigation() {
@@ -5519,27 +5608,38 @@ function renderAjouter(root) {
   const nowTime = new Date().toTimeString().slice(0, 5);
   el.innerHTML = `
     <h1 class="screen-title">Ajouter une course</h1>
+
+    <label class="tcx-import-label btn-secondary file-label">📥 Importer un fichier TCX
+      <input type="file" id="tcx-input" accept=".tcx,application/xml,text/xml" hidden>
+    </label>
+    <div class="tcx-hint">Remplit automatiquement date, heure, distance, durée et dénivelé. Pays/département restent à saisir toi-même.</div>
+
     <form id="run-form" class="run-form">
       <label>Date <input type="date" name="date" value="${today}" required></label>
       <label>Heure de départ <input type="time" name="time" value="${nowTime}" required></label>
       <label>Distance (km) <input type="number" step="0.01" min="0.01" name="distanceKm" required></label>
-      <label>Durée (minutes) <input type="number" step="0.1" min="0.1" name="durationMin" required></label>
+      <label>Durée
+        <div class="duration-row">
+          <input type="number" step="1" min="0" name="durationMinPart" placeholder="min" required>
+          <span class="duration-sep">min</span>
+          <input type="number" step="1" min="0" max="59" name="durationSecPart" placeholder="sec" value="0">
+          <span class="duration-sep">sec</span>
+        </div>
+      </label>
       <label>Dénivelé positif (m) <input type="number" step="1" min="0" name="elevationGain" value="0"></label>
       <label>Pays <input type="text" name="country" value="France" required></label>
       <label>Département (si France) <input type="text" name="department" placeholder="ex : 75, 2A, 971"></label>
       <label>Météo
         <select name="weather">
           <option value="">—</option>
-          <option value="rain">Pluie</option>
-          <option value="heavy_rain">Forte pluie</option>
-          <option value="wind">Vent important</option>
-          <option value="heat">Forte chaleur</option>
-          <option value="cold">Sous zéro</option>
-          <option value="snow">Neige</option>
-          <option value="fog">Brouillard</option>
-          <option value="special">Particulière</option>
-          <option value="sunrise">Lever du soleil</option>
-          <option value="sunset">Coucher du soleil</option>
+          <option value="pluie_fine">Pluie fine</option>
+          <option value="deluge">Déluge</option>
+          <option value="vent_face">Vent de face</option>
+          <option value="canicule">Canicule</option>
+          <option value="grand_froid">Grand froid</option>
+          <option value="neige">Neige</option>
+          <option value="brouillard">Brouillard</option>
+          <option value="orage_loin">Orage au loin</option>
         </select>
       </label>
       <label class="checkbox-row"><input type="checkbox" name="officialRace"> Course officielle</label>
@@ -5559,17 +5659,82 @@ function renderAjouter(root) {
   `;
   root.appendChild(el);
   document.getElementById('run-form').addEventListener('submit', handleRunSubmit);
+  document.getElementById('tcx-input').addEventListener('change', (e) => {
+    if (e.target.files[0]) handleTcxImport(e.target.files[0]);
+  });
+}
+
+function handleTcxImport(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = parseTCX(reader.result);
+      if (!parsed.distanceKm && !parsed.durationMin) throw new Error('Fichier TCX vide ou non reconnu');
+      const form = document.getElementById('run-form');
+      if (parsed.startDateTime) {
+        const d = new Date(parsed.startDateTime);
+        form.elements['date'].value = d.toISOString().slice(0, 10);
+        form.elements['time'].value = d.toTimeString().slice(0, 5);
+      }
+      if (parsed.distanceKm) form.elements['distanceKm'].value = Math.round(parsed.distanceKm * 100) / 100;
+      if (parsed.durationMin) {
+        form.elements['durationMinPart'].value = Math.floor(parsed.durationMin);
+        form.elements['durationSecPart'].value = Math.round((parsed.durationMin % 1) * 60);
+      }
+      if (parsed.elevationGain != null) form.elements['elevationGain'].value = parsed.elevationGain;
+      toast('Fichier TCX importé — vérifie les champs puis complète pays/département.');
+    } catch (e) {
+      console.error(e);
+      toast("Impossible de lire ce fichier TCX.", true);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function parseTCX(xmlString) {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlString, 'application/xml');
+  if (xml.querySelector('parsererror')) throw new Error('XML invalide');
+  const laps = Array.from(xml.getElementsByTagName('Lap'));
+  let totalTimeSec = 0, totalDistanceM = 0, elevationGain = 0;
+  let firstTime = null, prevAltitude = null;
+  laps.forEach(lap => {
+    const t = lap.getElementsByTagName('TotalTimeSeconds')[0];
+    if (t) totalTimeSec += parseFloat(t.textContent) || 0;
+    const d = lap.getElementsByTagName('DistanceMeters')[0];
+    if (d) totalDistanceM += parseFloat(d.textContent) || 0;
+    Array.from(lap.getElementsByTagName('Trackpoint')).forEach(tp => {
+      const timeEl = tp.getElementsByTagName('Time')[0];
+      if (timeEl && !firstTime) firstTime = timeEl.textContent;
+      const altEl = tp.getElementsByTagName('AltitudeMeters')[0];
+      if (altEl) {
+        const alt = parseFloat(altEl.textContent);
+        if (!isNaN(alt)) {
+          if (prevAltitude != null && alt > prevAltitude) elevationGain += (alt - prevAltitude);
+          prevAltitude = alt;
+        }
+      }
+    });
+  });
+  return {
+    distanceKm: totalDistanceM / 1000,
+    durationMin: totalTimeSec / 60,
+    elevationGain: Math.round(elevationGain),
+    startDateTime: firstTime,
+  };
 }
 
 function handleRunSubmit(ev) {
   ev.preventDefault();
   const form = ev.target;
   const fd = new FormData(form);
+  const minPart = parseFloat(fd.get('durationMinPart') || 0);
+  const secPart = parseFloat(fd.get('durationSecPart') || 0);
   const runData = {
     date: fd.get('date'),
     time: fd.get('time'),
     distanceKm: parseFloat(fd.get('distanceKm')),
-    durationMin: parseFloat(fd.get('durationMin')),
+    durationMin: minPart + secPart / 60,
     elevationGain: parseFloat(fd.get('elevationGain') || 0),
     country: (fd.get('country') || '').trim(),
     department: (fd.get('department') || '').trim(),
