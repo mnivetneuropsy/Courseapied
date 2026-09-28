@@ -357,6 +357,27 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .commune-list { margin: 0; line-height: 1.6; }
 #share-bilan { margin: 6px 0 10px; }
 
+/* v2.3 : jauge de récupération */
+.rec-card { display: flex; gap: 16px; align-items: center; cursor: pointer; }
+.rec-ring { flex-shrink: 0; }
+.rec-track { fill: none; stroke: var(--surface-3); stroke-width: 9; }
+.rec-val { fill: none; stroke-width: 9; stroke-linecap: round; transition: stroke-dasharray .6s ease; }
+.rec-pct { fill: var(--text); font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; }
+.rec-main { flex: 1; min-width: 0; }
+.rec-main .card-eyebrow { margin-bottom: 2px; }
+.rec-title { font-weight: 800; font-size: 17px; margin-bottom: 4px; }
+.rec-line { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.rec-line b { color: var(--text); font-weight: 600; }
+.rec-warn { font-size: 12px; color: var(--gold); margin-top: 6px; font-weight: 600; }
+.rec-sheet-head { display: flex; gap: 16px; align-items: center; margin-bottom: 8px; }
+.rec-sheet-head p { margin: 4px 0 0; }
+.rec-acwr { margin-top: 12px; border-radius: var(--radius-md); padding: 12px; font-size: 13px; display: flex; flex-direction: column; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); }
+.rec-acwr.ok { border-color: rgba(107, 203, 119, .5); } .rec-acwr.warn { border-color: var(--gold); } .rec-acwr.low { border-color: var(--border); }
+.rec-acwr span { color: var(--text-muted); }
+.rec-method { margin-top: 14px; background: var(--surface-2); border-radius: var(--radius-md); padding: 12px; font-size: 13px; line-height: 1.5; color: var(--text-muted); }
+.rec-method summary { font-weight: 700; color: var(--text); cursor: pointer; }
+.rec-method b { color: var(--text); }
+
 </style>
 </head>
 <body>
@@ -5434,6 +5455,19 @@ function computeCoachMessages(summary, now, opts) {
     }
   }
 
+  // 2 bis. Récupéré après une grosse séance
+  const rec = summary.recovery;
+  if ((p.recovery || opts.inApp) && rec && rec.hours >= 36) {
+    const ra = new Date(rec.readyAt);
+    if (now >= ra && now - ra < 20 * 3600000) {
+      out.push({
+        key: `recovered:${rec.runDate}`, type: 'recovery',
+        title: "✅ Tu es récupéré !",
+        body: "Tes jambes ont eu le temps d'encaisser : prêt pour une belle séance.",
+      });
+    }
+  }
+
   // 3 bis. Bilan du mois écoulé disponible (les 3 premiers jours du mois)
   if ((p.bilan || opts.inApp) && now.getDate() <= 3 && summary.prevMonthRuns > 0) {
     out.push({
@@ -5482,7 +5516,7 @@ function pickCoachNotifications(messages, log, now) {
    ============================================================ */
 
 const STORAGE_KEY = 'runquest_state_v1';
-const APP_VERSION = '2.2';
+const APP_VERSION = '2.3';
 
 const DEFAULT_SETTINGS = () => ({
   birthday: null,            // "MM-JJ"
@@ -5490,10 +5524,11 @@ const DEFAULT_SETTINGS = () => ({
   streakMode: 'daily',       // 'daily' | 'flexible'
   restDays: 1,               // jours de repos tolérés en mode souple
   weeklyGoalRuns: 3,
-  ghostMode: 'best',         // 'best' : meilleure sortie similaire | 'last' : dernière sortie similaire
+  ghostMode: 'best',
+  birthYear: null,           // facultatif : ajuste la jauge de récupération selon l'âge         // 'best' : meilleure sortie similaire | 'last' : dernière sortie similaire
   notifications: {
     enabled: false, inactivity: true, inactivityDays: 3,
-    weekEnd: true, streak: true, challenge: true, backup: true, bilan: true,
+    weekEnd: true, streak: true, challenge: true, backup: true, bilan: true, recovery: true,
   },
   notifLog: {},
   lastExport: null,
@@ -6198,6 +6233,91 @@ function feelingInsights() {
 }
 function feelingLabel(v) { const f = FEELINGS[Math.min(4, Math.max(0, Math.round(v) - 1))]; return `${f[1]} ${f[2]}`; }
 
+/* ---------------- Jauge de récupération ----------------
+   Estimation (pas un avis médical) construite à partir de repères publiés :
+   - charge d'une séance = durée × effort perçu (méthode « session RPE » de Foster),
+     l'intensité étant pondérée au carré (proxy de type TSS : durée × RPE² / 10) ;
+   - footing facile ≈ 12-24 h, séance dure ou sortie longue ≈ 48-72 h ;
+   - course officielle : règle « 1 jour par mile couru » avant de recourir à fond ;
+   - hausse brutale de charge (ratio aigu/chronique > 1,3) → récupération allongée ;
+   - âge : environ +1 % par an au-delà de 25 ans.                                        */
+
+const FEEL_TO_RPE = { 1: 3, 2: 4, 3: 5.5, 4: 7, 5: 8.5 };
+function median(a) { const s = a.slice().sort((x, y) => x - y); const n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null; }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+function runEffort(run, prior) {
+  let rpe, source;
+  if (run.feeling) { rpe = FEEL_TO_RPE[run.feeling]; source = 'ta sensation'; }
+  else {
+    const ref = prior.filter(p => p.distanceKm >= 1 && p.paceMinPerKm).slice(-30);
+    if (ref.length >= 5 && run.paceMinPerKm) {
+      rpe = 4.5 + (median(ref.map(p => p.paceMinPerKm)) / run.paceMinPerKm - 1) * 25;
+      if (run.distanceKm >= 1.5 * median(ref.map(p => p.distanceKm))) rpe += 1;
+      source = 'ton allure habituelle';
+    } else { rpe = 5; source = 'valeur par défaut'; }
+  }
+  if (run.officialRace) { rpe = Math.max(rpe, 8.5); source = 'course officielle'; }
+  rpe = clamp(rpe, 2.5, 9);
+  const effMin = run.durationMin * (1 + (run.elevationGain / 100) / Math.max(run.distanceKm, 1)); // 100 m D+ ≈ 1 km
+  const load = effMin * rpe * rpe / 10;
+  let hours = clamp(8 + 0.15 * load, 8, 72);
+  let raceRule = false;
+  if (run.officialRace && run.distanceKm / 1.609 * 24 > hours) { hours = run.distanceKm / 1.609 * 24; raceRule = true; }
+  return { rpe, source, effMin, load, srpe: rpe * effMin, hours, raceRule };
+}
+
+function runEnd(run) {
+  const d = parseLocalDate(run.date);
+  const t = timeToMin(run.time);
+  d.setMinutes((t == null ? 18 * 60 : t) + Math.round(run.durationMin));
+  return d;
+}
+
+// Un créneau qui tombe la nuit est repoussé au lendemain matin (6 h)
+function wakeUpTime(d) {
+  const h = d.getHours();
+  if (h >= 21) { const n = new Date(d); n.setDate(n.getDate() + 1); n.setHours(6, 0, 0, 0); return n; }
+  if (h < 6) { const n = new Date(d); n.setHours(6, 0, 0, 0); return n; }
+  return d;
+}
+
+function computeRecovery(now) {
+  now = now || new Date();
+  const runs = sortedRuns();
+  if (!runs.length) return null;
+  const today = localDateStr(now);
+  const efforts = runs.map((r, i) => ({ run: r, end: runEnd(r), ...runEffort(r, runs.slice(0, i)) }));
+  // ratio charge aiguë (7 j) / chronique (moyenne hebdo sur 28 j)
+  const inWin = (e, days) => e.run.date > addDays(today, -days) && e.run.date <= today;
+  const acute = efforts.filter(e => inWin(e, 7)).reduce((s, e) => s + e.srpe, 0);
+  const chronic = efforts.filter(e => inWin(e, 28)).reduce((s, e) => s + e.srpe, 0) / 4;
+  const enoughHistory = daysBetween(runs[0].date, today) >= 21;
+  const acwr = enoughHistory && chronic > 0 ? acute / chronic : null;
+  const spike = acwr != null && acwr > 1.5 ? 1.3 : acwr != null && acwr > 1.3 ? 1.15 : 1;
+  const by = Number(STATE.settings.birthYear);
+  const age = by > 1900 ? now.getFullYear() - by : null;
+  const ageFactor = age ? 1 + Math.max(0, age - 25) * 0.01 : 1;
+
+  let readyAt = null, easyAt = null, driver = null;
+  const recent = efforts.filter(e => e.run.date >= addDays(today, -30));
+  recent.forEach(e => {
+    let hours = e.hours * ageFactor * (inWin(e, 7) ? spike : 1);
+    if (readyAt && readyAt > e.end) hours += 0.5 * (readyAt - e.end) / 3600000; // fatigue qui s'empile
+    if (!e.raceRule) hours = Math.min(hours, 96);
+    e.totalHours = hours;
+    e.readyAt = wakeUpTime(new Date(e.end.getTime() + hours * 3600000));
+    e.easyAt = wakeUpTime(new Date(e.end.getTime() + Math.max(hours >= 36 ? 14 : 8, 0.25 * hours) * 3600000));
+    if (!readyAt || e.readyAt > readyAt) { readyAt = e.readyAt; driver = e; }
+    if (!easyAt || e.easyAt > easyAt) easyAt = e.easyAt;
+  });
+  if (!driver || now >= readyAt) {
+    return { pct: 100, status: 'ready', readyAt, easyAt, driver, acwr, spike, age, ageFactor, recent };
+  }
+  const pct = clamp(Math.floor((now - driver.end) / (readyAt - driver.end) * 100), 0, 99);
+  return { pct, status: now >= easyAt ? 'easy' : 'rest', readyAt, easyAt, driver, acwr, spike, age, ageFactor, recent };
+}
+
 /* ---------------- Bilan mensuel ---------------- */
 
 function monthReport(mk) {
@@ -6377,6 +6497,7 @@ function buildCoachSummary() {
     restDays: restDaysSetting(),
     challenge,
     lastExport: STATE.settings.lastExport,
+    recovery: (() => { const r = computeRecovery(); return r && r.driver ? { readyAt: r.readyAt.toISOString(), hours: r.driver.totalHours, runDate: r.driver.run.date } : null; })(),
     prevMonthRuns: (() => { const d = new Date(); const pm = new Date(d.getFullYear(), d.getMonth() - 1, 1); const k = `${pm.getFullYear()}-${pad2(pm.getMonth() + 1)}`;
       return STATE.runs.filter(r => r.date.startsWith(k)).length; })(),
   };
@@ -6619,6 +6740,8 @@ function renderAccueil(el) {
 
     ${banners.join('')}
 
+    ${recoveryCardHtml()}
+
     ${coach ? `<div class="coach-card"><div class="coach-title">${escapeHtml(coach.title)}</div><div class="coach-body">${escapeHtml(coach.body)}</div></div>` : ''}
 
     ${nw ? `
@@ -6678,12 +6801,88 @@ function renderAccueil(el) {
   `;
 
   const on = (id, fn) => { const b = el.querySelector('#' + id); if (b) b.addEventListener('click', fn); };
+  const rc = el.querySelector('#recovery-card');
+  if (rc) rc.addEventListener('click', openRecoverySheet);
   on('bn-notif', () => enableNotifications());
   on('bn-notif-x', () => { s.dismissed.notifBanner = true; saveData(); renderCurrentScreen(); });
   on('bn-install', () => promptInstall());
   on('bn-bilan', () => { s.dismissed['bilan_' + prevMk] = true; saveData(); bilanMonth = prevMk; goToScreen('bilan'); });
   on('bn-bilan-x', () => { s.dismissed['bilan_' + prevMk] = true; saveData(); renderCurrentScreen(); });
   on('bn-install-x', () => { s.dismissed.installBanner = true; saveData(); renderCurrentScreen(); });
+}
+
+function fmtWhen(date) {
+  const now = new Date();
+  const h = (date - now) / 3600000;
+  if (h <= 0) return 'maintenant';
+  const morning = date.getHours() === 6 && date.getMinutes() === 0;
+  const hh = morning ? 'matin' : `vers ${pad2(date.getHours())} h ${pad2(date.getMinutes())}`;
+  const dayDiff = daysBetween(localDateStr(now), localDateStr(date));
+  if (dayDiff === 0) return morning ? 'ce matin' : `aujourd'hui ${hh}`;
+  if (dayDiff === 1) return `demain ${hh}`;
+  if (dayDiff < 7) return `${date.toLocaleDateString('fr-FR', { weekday: 'long' })} ${hh}`;
+  return `le ${date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}`;
+}
+function fmtHours(h) { return h < 48 ? `${Math.round(h)} h` : `${fmtNum(h / 24, 1)} jours`; }
+
+const RECOVERY_STATES = {
+  ready: { color: 'var(--moss)', title: 'Récupéré', icon: '✅', text: 'Prêt pour tout : séance intense, sortie longue ou course.' },
+  easy: { color: 'var(--gold)', title: 'Footing facile OK', icon: '🟡', text: 'Une sortie tranquille, à allure de conversation, sans côtes ni accélérations.' },
+  rest: { color: 'var(--danger)', title: 'Récupération en cours', icon: '🔴', text: 'Repos, marche ou étirements doux conseillés.' },
+};
+
+function recoveryRing(pct, color, size) {
+  const r = 42, c = 2 * Math.PI * r;
+  return `<svg class="rec-ring" viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true">
+    <circle cx="50" cy="50" r="${r}" class="rec-track"/>
+    <circle cx="50" cy="50" r="${r}" class="rec-val" style="stroke:${color}" stroke-dasharray="${(c * pct / 100).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 50 50)"/>
+    <text x="50" y="56" text-anchor="middle" class="rec-pct">${pct}%</text></svg>`;
+}
+
+function recoveryCardHtml() {
+  const R = computeRecovery();
+  if (!R) return '';
+  const st = RECOVERY_STATES[R.status];
+  const lines = R.status === 'ready' ? `<div class="rec-line">${st.text}</div>` :
+    `<div class="rec-line">🏃 Footing facile : <b>${fmtWhen(R.easyAt)}</b></div><div class="rec-line">⚡ Séance intense / longue : <b>${fmtWhen(R.readyAt)}</b></div>`;
+  return `<section class="card rec-card" id="recovery-card">
+    ${recoveryRing(R.pct, st.color, 84)}
+    <div class="rec-main"><div class="card-eyebrow">Récupération</div>
+      <div class="rec-title" style="color:${st.color}">${st.title}</div>${lines}
+      ${R.spike > 1 ? '<div class="rec-warn">⚠️ Charge en forte hausse cette semaine</div>' : ''}
+    </div></section>`;
+}
+
+function openRecoverySheet() {
+  const R = computeRecovery();
+  if (!R) return;
+  const st = RECOVERY_STATES[R.status];
+  const d = R.driver;
+  const effortLabel = rpe => rpe < 4.5 ? 'facile' : rpe < 6.5 ? 'modéré' : rpe < 8 ? 'soutenu' : 'très dur';
+  const list = R.recent.slice(-5).reverse();
+  openSheet(`
+    <div class="rec-sheet-head">${recoveryRing(R.pct, st.color, 110)}
+      <div><div class="sheet-title" style="color:${st.color};margin:0">${st.icon} ${st.title}</div><p class="muted">${st.text}</p></div></div>
+    ${R.status !== 'ready' ? `<div class="kv-list">
+      <div class="kv"><span>🏃 Footing facile possible</span><b>${fmtWhen(R.easyAt)}</b></div>
+      <div class="kv"><span>⚡ Séance intense ou longue</span><b>${fmtWhen(R.readyAt)}</b></div>
+      <div class="kv"><span>Sortie qui pèse le plus</span><b>${formatDate(d.run.date, { day: 'numeric', month: 'short' })} · ${fmtNum(d.run.distanceKm)} km</b></div>
+      <div class="kv"><span>Récupération estimée</span><b>${fmtHours(d.totalHours)}</b></div></div>` : ''}
+    ${R.acwr != null ? `<div class="rec-acwr ${R.acwr > 1.3 ? 'warn' : R.acwr < 0.8 ? 'low' : 'ok'}">
+      <b>Charge de la semaine : ${fmtNum(R.acwr, 2)}× ta moyenne</b>
+      <span>${R.acwr > 1.5 ? "Hausse très brutale : c'est la zone où le risque de blessure augmente nettement. Lève le pied quelques jours." :
+        R.acwr > 1.3 ? 'Hausse rapide : les récupérations sont allongées par prudence.' :
+        R.acwr < 0.8 ? 'Semaine plus légère que d\'habitude : tu as de la marge pour reprendre progressivement.' : 'Zone idéale (0,8 à 1,3) : progression sans surcharge.'}</span></div>` : ''}
+    <div class="card-eyebrow" style="margin-top:14px">Dernières sorties</div>
+    ${list.map(e => `<div class="kv"><span>${formatDate(e.run.date, { weekday: 'short', day: 'numeric', month: 'short' })} · ${fmtNum(e.run.distanceKm)} km</span>
+      <b>${effortLabel(e.rpe)} · ${fmtHours(e.totalHours || e.hours)}${e.raceRule ? ' 🎽' : ''}</b></div>`).join('')}
+    <details class="rec-method"><summary>Comment c'est calculé ?</summary>
+      <p>Chaque sortie reçoit une charge : <b>durée × effort perçu</b> (méthode dite « session RPE »), l'intensité comptant plus que la durée. L'effort vient de ta <b>sensation</b> si tu l'as notée, sinon de ton allure comparée à ton allure habituelle. 100 m de D+ comptent comme 1 km de plus.</p>
+      <p>Repères utilisés : environ 12 à 24 h après un footing facile, 48 à 72 h après une séance dure ou une sortie longue. Après une <b>course officielle</b>, la règle classique d'<b>un jour par mile couru</b> avant de refaire un effort à fond (≈ 3 jours pour un 5 km, 6 pour un 10 km, 13 pour un semi). Un footing très léger reste possible avant.</p>
+      <p>Si ta charge de la semaine dépasse 1,3 fois ta moyenne des 4 dernières semaines, les récupérations sont allongées. ${R.age ? `Ton âge (${R.age} ans) ajoute ${Math.round((R.ageFactor - 1) * 100)} %.` : "Tu peux indiquer ton année de naissance dans les Réglages : la récupération s'allonge d'environ 1 % par an après 25 ans."}</p>
+      <p><b>C'est une estimation, pas un avis médical.</b> Tes vrais signaux priment : jambes lourdes à l'échauffement, mauvais sommeil, fatigue inhabituelle. Une douleur qui s'aggrave, localisée à une articulation ou qui dure plus de 3 jours mérite l'avis d'un professionnel de santé.</p>
+    </details>
+    <button class="btn-primary" data-close>Compris</button>`);
 }
 
 function calendarGhostHtml() {
@@ -7493,6 +7692,7 @@ function renderReglages(el) {
           ${toggle('weekEnd', "Le week-end, si un badge hebdo est à portée")}
           ${toggle('streak', 'Quand ma série est en jeu')}
           ${toggle('challenge', "Quand un checkpoint de défi approche")}
+          ${toggle('recovery', "Quand je suis récupéré après une grosse séance")}
           ${toggle('bilan', 'Quand mon bilan du mois est prêt')}
           ${toggle('backup', 'Me rappeler de sauvegarder mes données')}
           <div class="row-actions"><button class="btn-small" id="test-notif">Tester</button><button class="btn-ghost" id="off-notif">Tout désactiver</button></div>
@@ -7523,9 +7723,11 @@ function renderReglages(el) {
     </section>
 
     <section class="card">
-      <div class="card-eyebrow">🎂 Anniversaire</div>
+      <div class="card-eyebrow">🎂 Anniversaire et âge</div>
       <input type="date" id="bday" class="text-input" value="${bday}">
-      <p class="muted small">Seuls le jour et le mois sont gardés, sur cet appareil uniquement.</p>
+      <p class="muted small">Pour le badge Birthday Run : seuls le jour et le mois sont gardés.</p>
+      <label class="sheet-field">Année de naissance <span class="muted small">(facultatif, affine la jauge de récupération)</span>
+        <input type="number" inputmode="numeric" id="birth-year" min="1920" max="2020" placeholder="ex : 1988" value="${s.birthYear || ''}"></label>
     </section>
 
     <section class="card">
@@ -7558,6 +7760,7 @@ function renderReglages(el) {
     s.birthday = e.target.value ? e.target.value.slice(5) : null; s.birthdayAsked = true;
     const res = commitRunChange(() => {}); toast('Anniversaire enregistré.'); showCelebrations(res.newBadges.map(b => ({ kind: 'badge', badge: b })));
   });
+  bind('birth-year', 'change', e => { const v = Number(e.target.value); s.birthYear = v >= 1920 && v <= 2020 ? v : null; saveData(); syncCoach(); toast(s.birthYear ? 'Âge pris en compte pour la récupération.' : 'Année retirée.'); });
   bind('export-btn', 'click', () => { exportData(); syncCoach(); renderCurrentScreen(); toast('Sauvegarde téléchargée.'); });
   bind('import-input', 'change', async e => {
     const f = e.target.files[0]; if (!f) return;
