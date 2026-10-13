@@ -378,6 +378,29 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .rec-method summary { font-weight: 700; color: var(--text); cursor: pointer; }
 .rec-method b { color: var(--text); }
 
+/* v2.4 : renforcement et roue des bonus */
+.renfo-btn { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; background: var(--surface-2); border: 1.5px dashed var(--border); border-radius: var(--radius-md); padding: 14px; color: var(--text); }
+.renfo-btn small { display: block; color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+.renfo-check { width: 30px; height: 30px; border-radius: 9px; border: 2px solid var(--text-faint); flex-shrink: 0; display: grid; place-items: center; font-weight: 900; color: #1a0f08; }
+.renfo-check.on { background: var(--moss); border-color: var(--moss); }
+.renfo-done { display: flex; align-items: center; gap: 14px; }
+.small-ghost { width: auto; padding: 8px 0 0; min-height: 0; font-size: 13px; }
+.small-ghost.confirm { color: var(--danger); }
+.bonus-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.bonus-chip { font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 999px; background: rgba(232, 184, 75, .12); border: 1px solid rgba(232, 184, 75, .5); color: var(--gold); }
+.level-dot.reduced { border-color: var(--gold); color: var(--gold); }
+.level-dot.reduced.on { color: #1a0f08; }
+.wheel-wrap { width: 230px; height: 230px; margin: 0 auto 12px; }
+.wheel-svg { width: 100%; height: 100%; overflow: visible; }
+.wheel-rot { transform-origin: 130px 130px; transition: transform 3.1s cubic-bezier(.12, .7, .15, 1); }
+.wheel-ic { font-size: 34px; }
+.wheel-result { animation: popIn .35s ease; }
+.stat-num small { font-size: 12px; font-weight: 600; }
+.cal-cell { position: relative; }
+.cal-cell.rf::after { content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background: var(--moss); }
+.cal-cell.on.rf::after { background: #0E1210; }
+.cal-legend { margin: 10px 0 0; }
+
 </style>
 </head>
 <body>
@@ -5431,7 +5454,7 @@ function computeCoachMessages(summary, now, opts) {
 
   // 2. Fin de semaine : badge hebdomadaire à portée
   if ((p.weekEnd || opts.inApp) && (dow === 6 || dow === 0) && unlockedLevels < levels.length) {
-    const target = levels[unlockedLevels];
+    const target = (sameWeek && summary.weeklyTargets && summary.weeklyTargets[unlockedLevels]) || levels[unlockedLevels];
     const remaining = Math.round((target - kmWeek) * 10) / 10;
     if (remaining > 0 && remaining <= 12) {
       out.push({
@@ -5516,7 +5539,7 @@ function pickCoachNotifications(messages, log, now) {
    ============================================================ */
 
 const STORAGE_KEY = 'runquest_state_v1';
-const APP_VERSION = '2.3';
+const APP_VERSION = '2.4';
 
 const DEFAULT_SETTINGS = () => ({
   birthday: null,            // "MM-JJ"
@@ -5683,6 +5706,7 @@ function buildState(saved) {
     badges: freshBadges(),
     weeklyBadges: [],
     monthlyBadges: [],
+    renfo: (saved.renfo || []).filter(x => x && x.date).map(x => Object.assign({}, x)),
     challenges: freshChallenges(),
     activeChallengeId: saved.activeChallengeId || null,
     settings,
@@ -5702,7 +5726,7 @@ function exportData() {
   STATE.settings.lastExport = todayStr();
   saveData();
   const payload = { app: 'RunQuest', version: APP_VERSION, exportedAt: new Date().toISOString(),
-    runs: STATE.runs, activeChallengeId: STATE.activeChallengeId, settings: STATE.settings };
+    runs: STATE.runs, renfo: STATE.renfo, activeChallengeId: STATE.activeChallengeId, settings: STATE.settings };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -5945,7 +5969,7 @@ const BADGE_RULES = {
 /* ---------------- Badges hebdomadaires ---------------- */
 
 function ensureWeeklyBadgesExist() {
-  const needed = new Set([todayStr(), ...STATE.runs.map(r => r.date)].map(weekKeyOf));
+  const needed = new Set([todayStr(), ...STATE.runs.map(r => r.date), ...(STATE.renfo || []).map(x => x.date)].map(weekKeyOf));
   const existing = new Set(STATE.weeklyBadges.map(b => `${b.year}-W${b.week}`));
   needed.forEach(key => {
     if (existing.has(key)) return;
@@ -5992,7 +6016,43 @@ function recalculateEverything() {
   const challengeById = {};
   STATE.challenges.forEach(c => { challengeById[c.id] = c; });
 
-  sortedRuns().forEach(run => {
+  // Jauge hebdo « bonifiée » : sert UNIQUEMENT aux badges hebdomadaires
+  acc.weekGauge = {}; acc.weekRed = {}; acc.elanActive = null;
+  STATE.weeklyBadges.forEach(b => { b.boosted = false; b.unlockedByRenfo = false; });
+  (STATE.renfo || []).forEach(x => { x.appliedLevel = null; x.applied = false; });
+  const thresholdOf = (b, wk) => b.target - ((acc.weekRed[wk] || {})[b.level] || 0);
+  const checkWeek = (wk, date, runId, viaRenfo) => {
+    const g = acc.weekGauge[wk] || 0;
+    (weeklyByKey[wk] || []).forEach(b => {
+      if (!b.unlocked && g >= thresholdOf(b, wk) - 1e-9) {
+        b.unlocked = true; b.unlockedDate = date; b.unlockedRunId = runId;
+        b.boosted = (acc.weekKm[wk] || 0) < b.target - 1e-9;
+        b.unlockedByRenfo = !!viaRenfo;
+        const r = runId && STATE.runs.find(x => x.id === runId);
+        if (r) r.badgesEarned.push(b.id);
+      }
+    });
+  };
+  const timeline = [
+    ...sortedRuns().map(r => ({ t: runSortKey(r), k: 0, run: r })),
+    ...(STATE.renfo || []).map(x => ({ t: `${x.date}T${x.time || '23:59'}`, k: 1, renfo: x })),
+  ].sort((a, b) => a.t.localeCompare(b.t) || a.k - b.k);
+
+  timeline.forEach(ev => {
+    if (ev.renfo) {
+      const x = ev.renfo, wk = weekKeyOf(x.date);
+      const next = (weeklyByKey[wk] || []).slice().sort((a, b) => a.level - b.level).find(b => !b.unlocked);
+      if (x.bonus === 'elan') { if (!acc.elanActive) { acc.elanActive = x.id; x.applied = true; } }
+      else if (x.bonus && next) {
+        acc.weekRed[wk] = acc.weekRed[wk] || {};
+        acc.weekRed[wk][next.level] = (acc.weekRed[wk][next.level] || 0) + (x.bonus === 'pouce' ? 2 : next.target * 0.1);
+        x.appliedLevel = next.level; x.applied = true;
+        checkWeek(wk, x.date, null, true);
+      }
+      return;
+    }
+    const run = ev.run;
+    run.elanApplied = false;
     accAdd(acc, run, restDays);
     locked = locked.filter(b => {
       const rule = BADGE_RULES[b.collection];
@@ -6004,12 +6064,10 @@ function recalculateEverything() {
       return true;
     });
     const wk = weekKeyOf(run.date);
-    (weeklyByKey[wk] || []).forEach(b => {
-      if (!b.unlocked && acc.weekKm[wk] >= b.target - 1e-9) {
-        b.unlocked = true; b.unlockedDate = run.date; b.unlockedRunId = run.id;
-        run.badgesEarned.push(b.id);
-      }
-    });
+    let counted = run.distanceKm;
+    if (acc.elanActive) { counted *= 1.15; run.elanApplied = true; acc.elanActive = null; }
+    acc.weekGauge[wk] = (acc.weekGauge[wk] || 0) + counted;
+    checkWeek(wk, run.date, run.id, false);
     const mk = run.date.slice(0, 7);
     (monthlyByKey[mk] || []).forEach(b => {
       const ok = b.kind === 'single' ? run.distanceKm >= b.target - 1e-9 : acc.monthKm[mk] >= b.target - 1e-9;
@@ -6089,6 +6147,9 @@ function calculateStats() {
   st.countriesVisited = [...countries];
   st.officialCount = official;
   st.communesCount = LAST_ACC.communes.size;
+  st.renfoTotal = (STATE.renfo || []).length;
+  st.renfoMonth = (STATE.renfo || []).filter(x => x.date.startsWith(month)).length;
+  st.renfoWeek = (STATE.renfo || []).filter(x => weekKeyOf(x.date) === wk).length;
   const mBadges = currentMonthBadges();
   st.monthBadgesUnlocked = mBadges.filter(b => b.unlocked).length;
   st.currentStreak = currentStreak();
@@ -6103,7 +6164,8 @@ function calculateStats() {
 
 function badgeProgress(badge) {
   if (badge.collection === 'hebdomadaire') {
-    return { value: kmForWeek(`${badge.year}-W${badge.week}`), target: badge.target, unit: 'km', label: 'Km cette semaine-là' };
+    const wk = `${badge.year}-W${badge.week}`;
+    return { value: weekGauge(wk), target: weeklyThreshold(badge), unit: 'km', label: 'Jauge de la semaine (bonus compris)' };
   }
   if (badge.collection === 'mensuel') {
     if (badge.kind === 'single') {
@@ -6136,13 +6198,54 @@ function currentMonthBadges() {
   return STATE.monthlyBadges.filter(b => b.monthKey === mk).sort((a, b) => a.level - b.level);
 }
 
+function weekGauge(wk) { return (LAST_ACC.weekGauge || {})[wk] || 0; }
+function weeklyThreshold(b) { return b.target - (((LAST_ACC.weekRed || {})[`${b.year}-W${b.week}`] || {})[b.level] || 0); }
+
 function nextWeeklyBadge() {
   const list = currentWeekBadges();
   const next = list.find(b => !b.unlocked);
   if (!next) return null;
-  const km = kmForWeek(weekKeyOf(todayStr()));
-  return { badge: next, km, remaining: Math.max(0, next.target - km), pct: Math.min(100, km / next.target * 100), unlockedCount: list.filter(b => b.unlocked).length };
+  const km = weekGauge(weekKeyOf(todayStr()));
+  const target = weeklyThreshold(next);
+  return { badge: next, km, realKm: kmForWeek(weekKeyOf(todayStr())), target, reduced: target < next.target - 1e-9,
+    remaining: Math.max(0, target - km), pct: Math.min(100, km / target * 100), unlockedCount: list.filter(b => b.unlocked).length };
 }
+
+/* ---------------- Renforcement & roue des bonus ---------------- */
+
+const RENFO_BONUSES = {
+  pouce: { icon: '👍', name: 'Coup de pouce', short: '−2 km sur le prochain palier', color: '#6BCB77' },
+  joker: { icon: '🃏', name: 'Joker', short: '−10 % sur le prochain palier', color: '#E8B84B' },
+  elan: { icon: '🚀', name: 'Élan', short: 'Prochaine sortie comptée ×1,15', color: '#FF7A45' },
+};
+function renfoOn(date) { return (STATE.renfo || []).find(x => x.date === date) || null; }
+function elanPending() { return !!LAST_ACC.elanActive; }
+
+// Ce que la roue peut donner pour une séance validée à cette date
+function renfoEligibility(date) {
+  const { year, week } = isoWeekInfo(date);
+  const list = STATE.weeklyBadges.filter(b => b.year === year && b.week === week);
+  const allDone = list.length > 0 && list.every(b => b.unlocked);
+  const pool = allDone ? [] : ['pouce', 'joker', 'elan'].filter(k => k !== 'elan' || !elanPending());
+  return { allDone, pool, next: list.sort((a, b) => a.level - b.level).find(b => !b.unlocked) || null };
+}
+
+function addRenfo(date) {
+  if (renfoOn(date)) return null;
+  const el = renfoEligibility(date);
+  const bonus = el.pool.length ? el.pool[Math.floor(Math.random() * el.pool.length)] : null;
+  const now = new Date();
+  const time = date === todayStr() ? `${pad2(now.getHours())}:${pad2(now.getMinutes())}` : '23:59';
+  const id = 'renfo_' + Date.now();
+  const before = el.next ? { level: el.next.level, target: weeklyThreshold(el.next) } : null;
+  const res = commitRunChange(() => { STATE.renfo.push({ id, date, time, bonus }); });
+  res.renfo = STATE.renfo.find(x => x.id === id);
+  res.before = before;
+  res.pool = el.pool;
+  return res;
+}
+
+function removeRenfo(id) { return commitRunChange(() => { STATE.renfo = STATE.renfo.filter(x => x.id !== id); }); }
 
 // Les badges les plus proches d'être débloqués, toutes catégories confondues
 function nearestBadges(limit) {
@@ -6348,6 +6451,7 @@ function monthReport(mk) {
     avgFeeling: rated.length ? sum(rated, r => r.feeling) / rated.length : null,
     prevKm: kmOf(prevMk), lyKm: kmOf(lyMk), hasLy: STATE.runs.some(r => r.date <= `${lyMk}-31`),
     monthly: STATE.monthlyBadges.filter(b => b.monthKey === mk),
+    renfo: (STATE.renfo || []).filter(x => x.date.startsWith(mk)).length,
   };
 }
 function monthsWithRuns() { return [...new Set(STATE.runs.map(r => r.date.slice(0, 7)))].sort(); }
@@ -6490,7 +6594,8 @@ function buildCoachSummary() {
     lastRunDate: stats.lastRun ? stats.lastRun.date : null,
     runsCount: stats.totalRuns,
     weekKey: weekKeyOf(todayStr()),
-    kmWeek: stats.kmWeek,
+    kmWeek: weekGauge(weekKeyOf(todayStr())),
+    weeklyTargets: currentWeekBadges().map(b => weeklyThreshold(b)),
     weeklyLevels: WEEKLY_LEVELS_KM,
     weeklyUnlockedCount: nw ? nw.unlockedCount : WEEKLY_LEVELS_KM.length,
     currentStreak: stats.currentStreak,
@@ -6731,7 +6836,7 @@ function renderAccueil(el) {
     <section class="hero">
       <div class="hero-label">Cette semaine</div>
       <div class="hero-value">${fmtNum(st.kmWeek)}<span class="hero-unit"> km</span></div>
-      <div class="level-dots">${weekBadges.map(b => `<span class="level-dot ${b.unlocked ? 'on' : ''}" title="${b.target} km">${b.target}</span>`).join('')}</div>
+      <div class="level-dots">${weekBadges.map(b => { const t = weeklyThreshold(b); return `<span class="level-dot ${b.unlocked ? 'on' : ''} ${t < b.target ? 'reduced' : ''}" title="${fmtNum(t)} km">${fmtNum(t)}</span>`; }).join('')}</div>
       <div class="hero-sub">
         <span>${st.currentStreak > 0 ? `🔥 Série : ${st.currentStreak} jour${st.currentStreak > 1 ? 's' : ''}` : '🔥 Pas de série en cours'}</span>
         <span>👟 ${st.runsWeek} / ${goal} sorties</span>
@@ -6742,17 +6847,19 @@ function renderAccueil(el) {
 
     ${recoveryCardHtml()}
 
+    ${renfoCardHtml()}
+
     ${coach ? `<div class="coach-card"><div class="coach-title">${escapeHtml(coach.title)}</div><div class="coach-body">${escapeHtml(coach.body)}</div></div>` : ''}
 
     ${nw ? `
     <section class="card next-badge">
       <div class="card-eyebrow">Prochain badge hebdomadaire</div>
       <div class="card-row">
-        <div class="card-title">Niveau ${nw.badge.level} · ${nw.badge.target} km</div>
+        <div class="card-title">Niveau ${nw.badge.level} · ${nw.reduced ? `<s class="muted">${nw.badge.target}</s> ${fmtNum(nw.target)}` : nw.badge.target} km</div>
         <div class="card-big">${fmtNum(nw.remaining)} <small>km restants</small></div>
       </div>
       ${progressBar(nw.pct)}
-      <div class="card-foot">${fmtNum(nw.km)} / ${nw.badge.target} km · la semaine se termine dimanche soir</div>
+      <div class="card-foot">${fmtNum(nw.km)} / ${fmtNum(nw.target)} km${nw.km - nw.realKm > 0.05 ? ` (dont +${fmtNum(nw.km - nw.realKm)} km d'Élan)` : ''} · la semaine se termine dimanche soir</div>
     </section>` : `
     <section class="card next-badge done"><div class="card-eyebrow">Badges hebdomadaires</div>
       <div class="card-title">Les 5 niveaux de la semaine sont à toi 🏆</div></section>`}
@@ -6801,6 +6908,13 @@ function renderAccueil(el) {
   `;
 
   const on = (id, fn) => { const b = el.querySelector('#' + id); if (b) b.addEventListener('click', fn); };
+  on('renfo-today', () => validateRenfo(todayStr()));
+  on('renfo-yesterday', () => validateRenfo(addDays(todayStr(), -1)));
+  on('renfo-undo', e => {
+    const b = e.currentTarget;
+    if (!b.classList.contains('confirm')) { b.classList.add('confirm'); b.textContent = 'Confirmer ?'; return; }
+    const x = renfoOn(todayStr()); if (x) { removeRenfo(x.id); syncCoach(); renderCurrentScreen(); toast('Séance de renfo retirée.'); }
+  });
   const rc = el.querySelector('#recovery-card');
   if (rc) rc.addEventListener('click', openRecoverySheet);
   on('bn-notif', () => enableNotifications());
@@ -6809,6 +6923,91 @@ function renderAccueil(el) {
   on('bn-bilan', () => { s.dismissed['bilan_' + prevMk] = true; saveData(); bilanMonth = prevMk; goToScreen('bilan'); });
   on('bn-bilan-x', () => { s.dismissed['bilan_' + prevMk] = true; saveData(); renderCurrentScreen(); });
   on('bn-install-x', () => { s.dismissed.installBanner = true; saveData(); renderCurrentScreen(); });
+}
+
+/* ---------------- Renforcement : carte, roue, bonus ---------------- */
+
+function renfoBonusLine(x) {
+  if (!x.bonus) return 'pas de bonus (paliers déjà atteints)';
+  const B = RENFO_BONUSES[x.bonus];
+  if (x.bonus === 'elan') return `${B.icon} ${B.name}${x.applied ? (elanPending() && LAST_ACC.elanActive === x.id ? ' · en attente de ta prochaine sortie' : ' · utilisé') : ' · déjà un Élan actif'}`;
+  return `${B.icon} ${B.name}${x.appliedLevel ? ` · palier ${x.appliedLevel}` : ''}`;
+}
+
+function renfoCardHtml() {
+  const today = todayStr(), yest = addDays(today, -1);
+  const done = renfoOn(today);
+  const wk = weekKeyOf(today);
+  const weekRenfo = STATE.renfo.filter(x => weekKeyOf(x.date) === wk && x.bonus);
+  const active = weekRenfo.map(x => `<span class="bonus-chip">${RENFO_BONUSES[x.bonus].icon} ${RENFO_BONUSES[x.bonus].name}${x.appliedLevel ? ' · niv. ' + x.appliedLevel : ''}</span>`);
+  if (elanPending() && !weekRenfo.some(x => x.id === LAST_ACC.elanActive)) active.push('<span class="bonus-chip">🚀 Élan en attente</span>');
+  return `<section class="card renfo-card">
+    <div class="card-eyebrow">💪 Renforcement</div>
+    ${done ? `<div class="renfo-done"><span class="renfo-check on">✓</span><div><b>Séance du jour validée</b><div class="muted small">${renfoBonusLine(done)}</div></div></div>
+        <button class="btn-ghost small-ghost" id="renfo-undo">Annuler</button>`
+      : `<button class="renfo-btn" id="renfo-today"><span class="renfo-check"></span><span><b>J'ai fait ma séance de renfo aujourd'hui</b><small>Lance la roue des bonus hebdo 🎡</small></span></button>
+        ${!renfoOn(yest) ? '<button class="btn-ghost small-ghost" id="renfo-yesterday">Oublié hier ? Valider la séance d\'hier</button>' : ''}`}
+    ${active.length ? `<div class="bonus-row">${active.join('')}</div>` : ''}
+  </section>`;
+}
+
+function validateRenfo(date) {
+  const res = addRenfo(date);
+  if (!res) return;
+  syncCoach();
+  const queue = res.newBadges.map(b => ({ kind: 'badge', badge: b }));
+  if (!res.renfo.bonus) {
+    renderCurrentScreen();
+    toast('Séance validée 💪 Tes 5 paliers de la semaine sont déjà atteints !');
+    return;
+  }
+  spinWheel(res, () => { renderCurrentScreen(); showCelebrations(queue); });
+}
+
+function wheelSvg(pool) {
+  const n = pool.length, R = 120, cx = 130, cy = 130;
+  return `<svg viewBox="0 0 260 260" class="wheel-svg"><g class="wheel-rot">${pool.map((k, i) => {
+    const a0 = (i / n) * 2 * Math.PI - Math.PI / 2, a1 = ((i + 1) / n) * 2 * Math.PI - Math.PI / 2, am = (a0 + a1) / 2;
+    const p = a => `${(cx + R * Math.cos(a)).toFixed(1)},${(cy + R * Math.sin(a)).toFixed(1)}`;
+    const B = RENFO_BONUSES[k];
+    return `<path d="M${cx},${cy} L${p(a0)} A${R},${R} 0 ${n === 1 ? 1 : 0} 1 ${p(a1)} Z" fill="${B.color}" opacity="${i % 2 ? .85 : 1}" stroke="#0E1210" stroke-width="3"/>
+      <text x="${(cx + R * 0.6 * Math.cos(am)).toFixed(1)}" y="${(cy + R * 0.6 * Math.sin(am)).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" class="wheel-ic">${B.icon}</text>`;
+  }).join('')}<circle cx="${cx}" cy="${cy}" r="18" fill="#0E1210" stroke="#E8B84B" stroke-width="3"/></g>
+  <polygon points="130,4 118,-14 142,-14" transform="translate(0,22)" fill="#EDF2EE"/></svg>`;
+}
+
+function spinWheel(res, done) {
+  const pool = res.pool, x = res.renfo, B = RENFO_BONUSES[x.bonus];
+  const idx = pool.indexOf(x.bonus), n = pool.length;
+  const seg = 360 / n;
+  const target = 360 * 5 + (360 - (idx * seg + seg / 2)) + (Math.random() - 0.5) * seg * 0.6;
+  let effect = '';
+  if (x.bonus === 'elan') effect = 'Ta prochaine sortie comptera pour 115 % dans la jauge hebdo (10 km courus = 11,5 km comptés).';
+  else if (res.before) {
+    const after = res.before.target - (x.bonus === 'pouce' ? 2 : res.before.level * 10 * 0.1);
+    effect = `Palier ${res.before.level} : ${fmtNum(res.before.target)} → <b>${fmtNum(after)} km</b>.` +
+      (res.newBadges.some(b => b.collection === 'hebdomadaire') ? ' Et c\'est suffisant : palier validé tout de suite ! 🎉' : '');
+  }
+  const overlay = document.createElement('div');
+  overlay.className = 'unlock-overlay';
+  overlay.innerHTML = `<div class="unlock-card wheel-card">
+    <div class="unlock-label">SÉANCE DE RENFO VALIDÉE 💪</div>
+    <div class="wheel-wrap">${wheelSvg(pool)}</div>
+    <div class="wheel-result hidden">
+      <div class="unlock-name">${B.icon} ${B.name}</div>
+      <div class="unlock-condition">${effect}</div>
+      <div class="unlock-date">Bonus valable uniquement pour les badges hebdomadaires</div>
+    </div>
+    <button class="btn-primary hidden">Super !</button></div>`;
+  document.body.appendChild(overlay);
+  const rot = overlay.querySelector('.wheel-rot');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  requestAnimationFrame(() => requestAnimationFrame(() => { rot.style.transform = `rotate(${target}deg)`; }));
+  setTimeout(() => {
+    overlay.querySelector('.wheel-result').classList.remove('hidden');
+    const btn = overlay.querySelector('button'); btn.classList.remove('hidden');
+    btn.addEventListener('click', () => { overlay.remove(); done(); });
+  }, reduce ? 200 : 3300);
 }
 
 function fmtWhen(date) {
@@ -7373,7 +7572,7 @@ function badgeTile(b) {
     b.collection === 'hebdomadaire' ? `Niveau ${b.level} · ${b.target} km` :
     b.collection === 'mensuel' ? (b.kind === 'single' ? (b.target === 5 ? '5K du mois' : '10K du mois') : `${b.target} km du mois`) : escapeHtml(b.name);
   return `<button class="badge-tile ${b.unlocked ? 'unlocked' : 'locked'}" data-id="${escapeHtml(b.id)}">
-    ${badgeVisual(b, 'small')}${b.unlocked ? '' : '<span class="lock-icon">🔒</span>'}
+    ${badgeVisual(b, 'small')}${b.unlocked ? (b.boosted ? '<span class="lock-icon" title="Obtenu avec un bonus renfo">💪</span>' : '') : '<span class="lock-icon">🔒</span>'}
     <span class="badge-tile-name">${label}</span></button>`;
 }
 
@@ -7393,7 +7592,7 @@ function openBadgeSheet(id) {
     <div class="sheet-title center">${escapeHtml(b.name)}</div>
     <div class="muted center">${escapeHtml(b.condition || b.description || '')}</div>
     ${b.collection === 'departements' || b.collection === 'pays' ? `<div class="center sheet-symbol">${escapeHtml(b.symbole || b.description || '')}</div>` : ''}
-    ${b.unlocked ? `<div class="sheet-unlocked">✅ Débloqué le ${formatDate(b.unlockedDate)}${run ? ` · sortie de ${fmtNum(run.distanceKm)} km` : ''}</div>` : prog || '<div class="sheet-unlocked muted">Pas encore débloqué</div>'}
+    ${b.unlocked ? `<div class="sheet-unlocked">✅ Débloqué le ${formatDate(b.unlockedDate)}${run ? ` · sortie de ${fmtNum(run.distanceKm)} km` : b.unlockedByRenfo ? ' · grâce à une séance de renfo' : ''}${b.boosted ? '<br><span class="muted small">💪 Obtenu avec un bonus renfo</span>' : ''}</div>` : prog || '<div class="sheet-unlocked muted">Pas encore débloqué</div>'}
     <button class="btn-primary" data-close>Fermer</button>`);
 }
 
@@ -7454,7 +7653,7 @@ function renderStats(el) {
       ${tile('Km cette année', fmtNum(st.kmYear))}${tile('Série actuelle', `${st.currentStreak} j`)}
       ${tile('Meilleure série', `${st.longestStreak} j`)}${tile(`Semaines à ${STATE.settings.weeklyGoalRuns}+ sorties`, st.weeklyGoalStreak)}
       ${tile('Départements', `${st.departmentsVisited.length} / 101`)}${tile('Pays', st.countriesVisited.length)}
-      ${tile('Communes', st.communesCount)}${tile('Fantômes battus', `${LAST_ACC.ghostWins} / ${STATE.runs.filter(r => r.ghost).length}`)}
+      ${tile('Communes', st.communesCount)}${tile('Séances de renfo', `${st.renfoTotal} <small class="muted">· ${st.renfoMonth} ce mois</small>`)}${tile('Fantômes battus', `${LAST_ACC.ghostWins} / ${STATE.runs.filter(r => r.ghost).length}`)}
       ${tile('Courses officielles', st.officialCount)}${tile('Badges', `${all.filter(b => b.unlocked).length} / ${all.length}`)}
     </div>
     <section class="card"><div class="card-eyebrow">Km par semaine</div>${weeklyChartSvg()}</section>
@@ -7489,7 +7688,7 @@ function renderHistorique(el) {
     <header class="topbar"><button class="icon-btn" data-go="stats" aria-label="Retour">←</button><h1 class="screen-title">Historique</h1><span></span></header>
     ${runs.length ? Object.entries(months).map(([m, list]) => `
       <div class="month-title">${parseLocalDate(m + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
-        <span>${list.length} sortie${list.length > 1 ? 's' : ''} · ${fmtNum(list.reduce((s, r) => s + r.distanceKm, 0))} km</span></div>
+        <span>${list.length} sortie${list.length > 1 ? 's' : ''} · ${fmtNum(list.reduce((s, r) => s + r.distanceKm, 0))} km${(() => { const n = STATE.renfo.filter(x => x.date.startsWith(m)).length; return n ? ` · 💪 ${n}` : ''; })()}</span></div>
       <div class="history-list">${list.map(historyRow).join('')}</div>`).join('')
       : '<div class="empty-state">Aucune course pour le moment.<br><button class="btn-primary" data-go="ajouter">Ajouter ma première course</button></div>'}
   `;
@@ -7535,6 +7734,7 @@ function openRunSheet(id) {
       ${row('Météo', (r.weather || []).map(k => { const w = WEATHER_OPTIONS.find(x => x[0] === k); return w ? w[1] + ' ' + w[2] : ''; }).join(', '))}
       ${row('Course officielle', r.officialRace ? (OFFICIAL_TYPES.find(t => t[0] === r.officialRaceType) || [0, 'Oui'])[1] : '')}
       ${row('Défi', ch ? escapeHtml(ch.name) : '')}
+      ${row('Bonus Élan', r.elanApplied ? `🚀 ${fmtNum(r.distanceKm * 1.15)} km comptés dans la jauge hebdo` : '')}
     </div>
     ${r.comment ? `<p class="run-comment">${escapeHtml(r.comment)}</p>` : ''}
     ${earned.length ? `<div class="card-eyebrow">Badges gagnés ce jour-là</div>
@@ -7575,7 +7775,8 @@ function renderBilan(el) {
   for (let k = 0; k < offset; k++) cells += '<div class="cal-cell empty"></div>';
   for (let d = 1; d <= nDays; d++) {
     const ds = `${bilanMonth}-${pad2(d)}`, km = kmByDay[ds] || 0;
-    cells += `<div class="cal-cell ${km ? 'on' : ''}" style="${km ? `--i:${0.35 + 0.65 * km / maxDay}` : ''}" title="${km ? fmtNum(km) + ' km' : ''}">${d}</div>`;
+    const rf = STATE.renfo.some(x => x.date === ds);
+    cells += `<div class="cal-cell ${km ? 'on' : ''} ${rf ? 'rf' : ''}" style="${km ? `--i:${0.35 + 0.65 * km / maxDay}` : ''}" title="${km ? fmtNum(km) + ' km' : ''}${rf ? ' · renfo' : ''}">${d}</div>`;
   }
   el.innerHTML = `
     <header class="topbar"><button class="icon-btn" data-go="stats" aria-label="Retour">←</button><h1 class="screen-title">Bilan</h1><span></span></header>
@@ -7592,7 +7793,7 @@ function renderBilan(el) {
     </section>
     <section class="card"><div class="card-eyebrow">Jours courus : ${R.days.size}</div>
       <div class="cal-head">${['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(x => `<span>${x}</span>`).join('')}</div>
-      <div class="cal-grid">${cells}</div></section>
+      <div class="cal-grid">${cells}</div><p class="muted small cal-legend">Orange : sortie (plus foncé = plus long) · point vert : séance de renfo</p></section>
     <div class="stat-grid">
       <div class="stat-tile"><div class="stat-num">${fmtNum(R.longest.distanceKm)} km</div><div class="stat-label">plus longue sortie · ${formatDate(R.longest.date, { day: 'numeric', month: 'short' })}</div></div>
       <div class="stat-tile"><div class="stat-num">${R.fastest ? paceToString(R.fastest.paceMinPerKm) + ' /km' : '—'}</div><div class="stat-label">meilleure allure${R.fastest ? ' · ' + formatDate(R.fastest.date, { day: 'numeric', month: 'short' }) : ''}</div></div>
@@ -7600,6 +7801,8 @@ function renderBilan(el) {
       <div class="stat-tile"><div class="stat-num">${R.duels ? `${R.ghostWins} / ${R.duels}` : '—'}</div><div class="stat-label">duels fantôme gagnés</div></div>
       <div class="stat-tile"><div class="stat-num">${R.avgFeeling ? FEELINGS[Math.round(R.avgFeeling) - 1][1] : '—'}</div><div class="stat-label">sensation moyenne${R.avgFeeling ? ' · ' + FEELINGS[Math.round(R.avgFeeling) - 1][2].toLowerCase() : ''}</div></div>
       <div class="stat-tile"><div class="stat-num">${R.monthly.filter(b => b.unlocked).length} / ${R.monthly.length || 5}</div><div class="stat-label">défis du mois</div></div>
+      <div class="stat-tile"><div class="stat-num">💪 ${R.renfo}</div><div class="stat-label">séances de renfo</div></div>
+      <div class="stat-tile"><div class="stat-num">${fmtNum(R.km / Math.max(1, R.count))} km</div><div class="stat-label">distance moyenne par sortie</div></div>
     </div>
     ${R.newCommunes.length ? `<section class="card"><div class="card-eyebrow">🧭 Nouvelles communes (${R.newCommunes.length})</div><p class="commune-list">${R.newCommunes.map(escapeHtml).join(' · ')}</p></section>` : ''}
     <section class="card"><div class="card-eyebrow">🏅 Badges gagnés : ${R.badges.length}</div>

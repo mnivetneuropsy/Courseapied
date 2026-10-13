@@ -1,5 +1,5 @@
 /* RunQuest — service worker : hors-ligne + rappels */
-const CACHE = 'runquest-v2.3';
+const CACHE = 'runquest-v2.4';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 const DATA_CACHE = 'runquest-data';
 
@@ -59,7 +59,7 @@ function computeCoachMessages(summary, now, opts) {
 
   // 2. Fin de semaine : badge hebdomadaire à portée
   if ((p.weekEnd || opts.inApp) && (dow === 6 || dow === 0) && unlockedLevels < levels.length) {
-    const target = levels[unlockedLevels];
+    const target = (sameWeek && summary.weeklyTargets && summary.weeklyTargets[unlockedLevels]) || levels[unlockedLevels];
     const remaining = Math.round((target - kmWeek) * 10) / 10;
     if (remaining > 0 && remaining <= 12) {
       out.push({
