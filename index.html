@@ -401,6 +401,21 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .cal-cell.on.rf::after { background: #0E1210; }
 .cal-legend { margin: 10px 0 0; }
 
+/* v2.5 : anniversaires */
+.anniv-today { display: flex; gap: 12px; align-items: center; }
+.anniv-main { flex: 1; min-width: 0; }
+.anniv-title { font-weight: 700; font-size: 15px; margin-bottom: 2px; }
+.anniv-today.done .anniv-title { color: var(--moss); }
+.anniv-next { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.anniv-today + .anniv-next { border-top: 1px solid var(--border); padding-top: 10px; }
+.anniv-next-row { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+.anniv-j { font-weight: 800; font-size: 11px; color: var(--accent); background: rgba(255,122,69,.12); border-radius: 999px; padding: 4px 8px; flex-shrink: 0; }
+.tile-date { display: block; font-size: 10px; font-weight: 800; color: var(--accent); margin-bottom: 2px; }
+.badge-tile.unlocked .tile-date { color: var(--gold); }
+.tile-date.missed { color: var(--text-faint); }
+.badge-tile.missed { opacity: .55; }
+.anniv-main .progress-bar { margin-top: 6px; }
+
 </style>
 </head>
 <body>
@@ -3270,6 +3285,20 @@ const BADGES = [
     "visual": "Citrouille lumineuse, lune, chaussures fantomatiques"
   },
   {
+    "id": "day_toussaint",
+    "name": "🕯️ Toussaint",
+    "collection": "jours_particuliers",
+    "description": "Courir le 1er novembre",
+    "condition": "Courir le 1er novembre",
+    "target": null,
+    "unit": null,
+    "image": "assets/badges/day_toussaint.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "date": "11-01",
+    "visual": "Chrysanthèmes au bord d'un sentier d'automne, tons sobres et brume légère"
+  },
+  {
     "id": "day_armistice",
     "name": "🌺 Souvenir",
     "collection": "jours_particuliers",
@@ -4191,6 +4220,468 @@ const BADGES = [
     "place": "boulangerie"
   },
   {
+    "id": "lieu_fleuriste_1",
+    "name": "💐 Main verte I",
+    "collection": "lieux",
+    "description": "Passer devant un fleuriste lors de 1 sortie",
+    "condition": "Passer devant un fleuriste lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_fleuriste_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Bouquet de fleurs fraîches devant une vitrine, niveau 1",
+    "place": "fleuriste"
+  },
+  {
+    "id": "lieu_fleuriste_2",
+    "name": "💐 Main verte II",
+    "collection": "lieux",
+    "description": "Passer devant un fleuriste lors de 10 sorties",
+    "condition": "Passer devant un fleuriste lors de 10 sorties",
+    "target": 10,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_fleuriste_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Bouquet de fleurs fraîches devant une vitrine, niveau 2",
+    "place": "fleuriste"
+  },
+  {
+    "id": "lieu_fleuriste_3",
+    "name": "💐 Main verte III",
+    "collection": "lieux",
+    "description": "Passer devant un fleuriste lors de 25 sorties",
+    "condition": "Passer devant un fleuriste lors de 25 sorties",
+    "target": 25,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_fleuriste_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Bouquet de fleurs fraîches devant une vitrine, niveau 3",
+    "place": "fleuriste"
+  },
+  {
+    "id": "lieu_cinema_1",
+    "name": "🎬 Clap de fin I",
+    "collection": "lieux",
+    "description": "Passer devant un cinéma lors de 1 sortie",
+    "condition": "Passer devant un cinéma lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_cinema_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Clap de cinéma et bobine de film, niveau 1",
+    "place": "cinema"
+  },
+  {
+    "id": "lieu_cinema_2",
+    "name": "🎬 Clap de fin II",
+    "collection": "lieux",
+    "description": "Passer devant un cinéma lors de 5 sorties",
+    "condition": "Passer devant un cinéma lors de 5 sorties",
+    "target": 5,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_cinema_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Clap de cinéma et bobine de film, niveau 2",
+    "place": "cinema"
+  },
+  {
+    "id": "lieu_cinema_3",
+    "name": "🎬 Clap de fin III",
+    "collection": "lieux",
+    "description": "Passer devant un cinéma lors de 15 sorties",
+    "condition": "Passer devant un cinéma lors de 15 sorties",
+    "target": 15,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_cinema_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Clap de cinéma et bobine de film, niveau 3",
+    "place": "cinema"
+  },
+  {
+    "id": "lieu_pompiers_1",
+    "name": "🚒 Soldat du feu I",
+    "collection": "lieux",
+    "description": "Passer devant une caserne de pompiers lors de 1 sortie",
+    "condition": "Passer devant une caserne de pompiers lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_pompiers_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Casque de pompier doré et camion rouge, niveau 1",
+    "place": "pompiers"
+  },
+  {
+    "id": "lieu_pompiers_2",
+    "name": "🚒 Soldat du feu II",
+    "collection": "lieux",
+    "description": "Passer devant une caserne de pompiers lors de 5 sorties",
+    "condition": "Passer devant une caserne de pompiers lors de 5 sorties",
+    "target": 5,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_pompiers_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Casque de pompier doré et camion rouge, niveau 2",
+    "place": "pompiers"
+  },
+  {
+    "id": "lieu_pompiers_3",
+    "name": "🚒 Soldat du feu III",
+    "collection": "lieux",
+    "description": "Passer devant une caserne de pompiers lors de 15 sorties",
+    "condition": "Passer devant une caserne de pompiers lors de 15 sorties",
+    "target": 15,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_pompiers_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Casque de pompier doré et camion rouge, niveau 3",
+    "place": "pompiers"
+  },
+  {
+    "id": "lieu_restaurant_1",
+    "name": "🍽️ Bonne table I",
+    "collection": "lieux",
+    "description": "Passer devant un restaurant lors de 1 sortie",
+    "condition": "Passer devant un restaurant lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_restaurant_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Assiette, couverts et toque de chef, niveau 1",
+    "place": "restaurant"
+  },
+  {
+    "id": "lieu_restaurant_2",
+    "name": "🍽️ Bonne table II",
+    "collection": "lieux",
+    "description": "Passer devant un restaurant lors de 10 sorties",
+    "condition": "Passer devant un restaurant lors de 10 sorties",
+    "target": 10,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_restaurant_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Assiette, couverts et toque de chef, niveau 2",
+    "place": "restaurant"
+  },
+  {
+    "id": "lieu_restaurant_3",
+    "name": "🍽️ Bonne table III",
+    "collection": "lieux",
+    "description": "Passer devant un restaurant lors de 25 sorties",
+    "condition": "Passer devant un restaurant lors de 25 sorties",
+    "target": 25,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_restaurant_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Assiette, couverts et toque de chef, niveau 3",
+    "place": "restaurant"
+  },
+  {
+    "id": "lieu_bar_1",
+    "name": "🍺 Tournée générale I",
+    "collection": "lieux",
+    "description": "Passer devant un bar lors de 1 sortie",
+    "condition": "Passer devant un bar lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_bar_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Comptoir de bar avec chopes qui trinquent, niveau 1",
+    "place": "bar"
+  },
+  {
+    "id": "lieu_bar_2",
+    "name": "🍺 Tournée générale II",
+    "collection": "lieux",
+    "description": "Passer devant un bar lors de 10 sorties",
+    "condition": "Passer devant un bar lors de 10 sorties",
+    "target": 10,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_bar_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Comptoir de bar avec chopes qui trinquent, niveau 2",
+    "place": "bar"
+  },
+  {
+    "id": "lieu_bar_3",
+    "name": "🍺 Tournée générale III",
+    "collection": "lieux",
+    "description": "Passer devant un bar lors de 25 sorties",
+    "condition": "Passer devant un bar lors de 25 sorties",
+    "target": 25,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_bar_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Comptoir de bar avec chopes qui trinquent, niveau 3",
+    "place": "bar"
+  },
+  {
+    "id": "lieu_hopital_1",
+    "name": "🏥 Blouse blanche I",
+    "collection": "lieux",
+    "description": "Passer devant un hôpital lors de 1 sortie",
+    "condition": "Passer devant un hôpital lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_hopital_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Façade d'hôpital avec croix et stéthoscope, niveau 1",
+    "place": "hopital"
+  },
+  {
+    "id": "lieu_hopital_2",
+    "name": "🏥 Blouse blanche II",
+    "collection": "lieux",
+    "description": "Passer devant un hôpital lors de 5 sorties",
+    "condition": "Passer devant un hôpital lors de 5 sorties",
+    "target": 5,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_hopital_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Façade d'hôpital avec croix et stéthoscope, niveau 2",
+    "place": "hopital"
+  },
+  {
+    "id": "lieu_hopital_3",
+    "name": "🏥 Blouse blanche III",
+    "collection": "lieux",
+    "description": "Passer devant un hôpital lors de 15 sorties",
+    "condition": "Passer devant un hôpital lors de 15 sorties",
+    "target": 15,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_hopital_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Façade d'hôpital avec croix et stéthoscope, niveau 3",
+    "place": "hopital"
+  },
+  {
+    "id": "lieu_bijouterie_1",
+    "name": "💍 Joyau I",
+    "collection": "lieux",
+    "description": "Passer devant une bijouterie lors de 1 sortie",
+    "condition": "Passer devant une bijouterie lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_bijouterie_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Écrin ouvert avec une bague brillante, niveau 1",
+    "place": "bijouterie"
+  },
+  {
+    "id": "lieu_bijouterie_2",
+    "name": "💍 Joyau II",
+    "collection": "lieux",
+    "description": "Passer devant une bijouterie lors de 5 sorties",
+    "condition": "Passer devant une bijouterie lors de 5 sorties",
+    "target": 5,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_bijouterie_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Écrin ouvert avec une bague brillante, niveau 2",
+    "place": "bijouterie"
+  },
+  {
+    "id": "lieu_bijouterie_3",
+    "name": "💍 Joyau III",
+    "collection": "lieux",
+    "description": "Passer devant une bijouterie lors de 15 sorties",
+    "condition": "Passer devant une bijouterie lors de 15 sorties",
+    "target": 15,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_bijouterie_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Écrin ouvert avec une bague brillante, niveau 3",
+    "place": "bijouterie"
+  },
+  {
+    "id": "lieu_dechetterie_1",
+    "name": "♻️ Éco-coureur I",
+    "collection": "lieux",
+    "description": "Passer devant une déchetterie lors de 1 sortie",
+    "condition": "Passer devant une déchetterie lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_dechetterie_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Bennes de tri colorées et symbole recyclage, niveau 1",
+    "place": "dechetterie"
+  },
+  {
+    "id": "lieu_dechetterie_2",
+    "name": "♻️ Éco-coureur II",
+    "collection": "lieux",
+    "description": "Passer devant une déchetterie lors de 5 sorties",
+    "condition": "Passer devant une déchetterie lors de 5 sorties",
+    "target": 5,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_dechetterie_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Bennes de tri colorées et symbole recyclage, niveau 2",
+    "place": "dechetterie"
+  },
+  {
+    "id": "lieu_dechetterie_3",
+    "name": "♻️ Éco-coureur III",
+    "collection": "lieux",
+    "description": "Passer devant une déchetterie lors de 15 sorties",
+    "condition": "Passer devant une déchetterie lors de 15 sorties",
+    "target": 15,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_dechetterie_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Bennes de tri colorées et symbole recyclage, niveau 3",
+    "place": "dechetterie"
+  },
+  {
+    "id": "lieu_pharmacie_1",
+    "name": "⚕️ Croix verte I",
+    "collection": "lieux",
+    "description": "Passer devant une pharmacie lors de 1 sortie",
+    "condition": "Passer devant une pharmacie lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_pharmacie_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Croix verte lumineuse de pharmacie, niveau 1",
+    "place": "pharmacie"
+  },
+  {
+    "id": "lieu_pharmacie_2",
+    "name": "⚕️ Croix verte II",
+    "collection": "lieux",
+    "description": "Passer devant une pharmacie lors de 10 sorties",
+    "condition": "Passer devant une pharmacie lors de 10 sorties",
+    "target": 10,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_pharmacie_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Croix verte lumineuse de pharmacie, niveau 2",
+    "place": "pharmacie"
+  },
+  {
+    "id": "lieu_pharmacie_3",
+    "name": "⚕️ Croix verte III",
+    "collection": "lieux",
+    "description": "Passer devant une pharmacie lors de 25 sorties",
+    "condition": "Passer devant une pharmacie lors de 25 sorties",
+    "target": 25,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_pharmacie_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Croix verte lumineuse de pharmacie, niveau 3",
+    "place": "pharmacie"
+  },
+  {
+    "id": "lieu_banque_1",
+    "name": "🏦 Coffre-fort I",
+    "collection": "lieux",
+    "description": "Passer devant une banque lors de 1 sortie",
+    "condition": "Passer devant une banque lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_banque_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Porte de coffre-fort ronde et pièces dorées, niveau 1",
+    "place": "banque"
+  },
+  {
+    "id": "lieu_banque_2",
+    "name": "🏦 Coffre-fort II",
+    "collection": "lieux",
+    "description": "Passer devant une banque lors de 10 sorties",
+    "condition": "Passer devant une banque lors de 10 sorties",
+    "target": 10,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_banque_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Porte de coffre-fort ronde et pièces dorées, niveau 2",
+    "place": "banque"
+  },
+  {
+    "id": "lieu_banque_3",
+    "name": "🏦 Coffre-fort III",
+    "collection": "lieux",
+    "description": "Passer devant une banque lors de 25 sorties",
+    "condition": "Passer devant une banque lors de 25 sorties",
+    "target": 25,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_banque_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Porte de coffre-fort ronde et pièces dorées, niveau 3",
+    "place": "banque"
+  },
+  {
+    "id": "lieu_garage_1",
+    "name": "🔧 Mécano I",
+    "collection": "lieux",
+    "description": "Passer devant un garage automobile lors de 1 sortie",
+    "condition": "Passer devant un garage automobile lors de 1 sortie",
+    "target": 1,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_garage_1.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Clé plate, roue et pont élévateur, niveau 1",
+    "place": "garage"
+  },
+  {
+    "id": "lieu_garage_2",
+    "name": "🔧 Mécano II",
+    "collection": "lieux",
+    "description": "Passer devant un garage automobile lors de 10 sorties",
+    "condition": "Passer devant un garage automobile lors de 10 sorties",
+    "target": 10,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_garage_2.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Clé plate, roue et pont élévateur, niveau 2",
+    "place": "garage"
+  },
+  {
+    "id": "lieu_garage_3",
+    "name": "🔧 Mécano III",
+    "collection": "lieux",
+    "description": "Passer devant un garage automobile lors de 25 sorties",
+    "condition": "Passer devant un garage automobile lors de 25 sorties",
+    "target": 25,
+    "unit": "sorties",
+    "image": "assets/badges/lieu_garage_3.png",
+    "unlocked": false,
+    "unlockedDate": null,
+    "visual": "Clé plate, roue et pont élévateur, niveau 3",
+    "place": "garage"
+  },
+  {
     "id": "explorer_communes_5",
     "name": "🧭 Curieux",
     "collection": "explorer",
@@ -4421,6 +4912,9 @@ const BADGES = [
 const PLACE_TYPES = [
   ['gendarmerie', '👮', 'Gendarmerie / commissariat'], ['eglise', '⛪', 'Église / chapelle'], ['mairie', '🏛️', 'Mairie'],
   ['lavoir', '🫧', 'Lavoir'], ['pont', '🌉', 'Pont sur une rivière'], ['phare', '🗼', 'Phare'], ['boulangerie', '🥐', 'Boulangerie'],
+  ['fleuriste', '💐', 'Fleuriste'], ['cinema', '🎬', 'Cinéma'], ['pompiers', '🚒', 'Caserne de pompiers'], ['restaurant', '🍽️', 'Restaurant'],
+  ['bar', '🍺', 'Bar'], ['hopital', '🏥', 'Hôpital'], ['bijouterie', '💍', 'Bijouterie'], ['dechetterie', '♻️', 'Déchetterie'],
+  ['pharmacie', '⚕️', 'Pharmacie'], ['banque', '🏦', 'Banque'], ['garage', '🔧', 'Garage automobile'],
 ];
 
 /* ===== challenges.js ===== */
@@ -5397,6 +5891,38 @@ function makeMonthlyBadges(year, month) { // month : 1-12
   }));
 }
 
+/* ===== anniversaires.js ===== */
+// Badges « Anniversaires » : dates uniques (une seule année). Pour en ajouter, copie une ligne.
+// Condition : une sortie d'au moins minKm le jour J. Image : assets/badges/anniv_<date>_<cle>.png
+const ANNIVERSARIES = [
+  { date: '2026-10-20', key: 'cartes_pokemon', name: '🃏 30 ans des cartes Pokémon', what: 'les 30 ans du jeu de cartes à collectionner Pokémon', minKm: 3, visual: 'Carte à collectionner holographique stylisée, éclat brillant, chiffre 30' },
+  { date: '2026-10-23', key: 'ipod', name: '🎧 25 ans de l\'iPod', what: 'les 25 ans de l\'iPod', minKm: 3, visual: 'Baladeur blanc à molette avec écouteurs, ondes musicales, chiffre 25' },
+  { date: '2026-10-31', key: 'houdini', name: '🪄 Houdini, 100 ans', what: 'les 100 ans de la mort d\'Harry Houdini', minKm: 3, visual: 'Chaînes et cadenas ouverts, haut-de-forme d\'illusionniste, chiffre 100' },
+  { date: '2026-11-02', key: 'monstres_cie', name: '🚪 25 ans de Monstres et Cie', what: 'les 25 ans du film Monstres et Cie', minKm: 3, visual: 'Porte de placard colorée entrouverte d\'où sort une lumière, chiffre 25' },
+  { date: '2026-11-11', key: 'route_66', name: '🛣️ Route 66, 100 ans', what: 'les 100 ans de la Route 66', minKm: 3, visual: 'Panneau de route en forme d\'écusson « 66 » devant un désert, chiffre 100' },
+  { date: '2026-11-16', key: 'harry_potter', name: '⚡ 25 ans du premier Harry Potter', what: 'les 25 ans du premier film Harry Potter', minKm: 3, visual: 'Baguette magique, éclair et lunettes rondes, étincelles, chiffre 25' },
+  { date: '2026-11-21', key: 'rocky', name: '🥊 Rocky, 50 ans', what: 'les 50 ans du film Rocky', minKm: 3, visual: 'Gants de boxe et grand escalier de musée au lever du soleil, chiffre 50' },
+  { date: '2026-12-13', key: 'mars_attacks', name: '👽 30 ans de Mars Attacks!', what: 'les 30 ans du film Mars Attacks!', minKm: 3, visual: 'Soucoupe volante rétro années 50 au-dessus d\'une ville, chiffre 30' },
+  { date: '2026-12-19', key: 'communaute_anneau', name: '💍 25 ans de La Communauté de l\'Anneau', what: 'les 25 ans du film La Communauté de l\'Anneau', minKm: 3, visual: 'Anneau doré gravé posé sur une carte ancienne, montagnes, chiffre 25' },
+  { date: '2026-12-20', key: 'scream', name: '📞 30 ans de Scream', what: 'les 30 ans du film Scream', minKm: 3, visual: 'Téléphone sans fil rétro qui sonne dans la pénombre, chiffre 30' },
+  { date: '2026-12-21', key: 'alice', name: '🐇 75 ans d\'Alice au pays des merveilles', what: 'les 75 ans de la sortie française d\'Alice au pays des merveilles (Disney)', minKm: 3, visual: 'Lapin pressé avec montre à gousset, cartes à jouer et tasse de thé, chiffre 75' },
+];
+
+function anniversaryBadges() {
+  return ANNIVERSARIES.map(a => ({
+    id: `anniv_${a.date}_${a.key}`,
+    name: a.name,
+    collection: 'anniversaires',
+    description: `Pour ${a.what}`,
+    condition: `Courir au moins ${a.minKm} km le ${a.date.split('-').reverse().join('/')}`,
+    target: a.minKm, unit: 'km',
+    date: a.date, what: a.what, oneOff: true,
+    image: `assets/badges/anniv_${a.date}_${a.key}.png`,
+    visual: a.visual,
+    unlocked: false, unlockedDate: null,
+  }));
+}
+
 /* ===== coach.js ===== */
 /* ============================================================
    Coach : messages de motivation / rappels.
@@ -5478,6 +6004,16 @@ function computeCoachMessages(summary, now, opts) {
     }
   }
 
+  // 1 bis. Anniversaire du jour : badge à décrocher (prioritaire, une seule fois)
+  const an = summary.annivToday;
+  if ((p.anniv || opts.inApp) && an && !an.unlocked) {
+    out.unshift({
+      key: `anniv:${an.id}`, type: 'anniv',
+      title: `🎉 Aujourd'hui : ${an.what}`,
+      body: `Cours au moins ${an.minKm} km aujourd'hui pour décrocher le badge « ${an.name.replace(/^\S+\s/, '')} ».`,
+    });
+  }
+
   // 2 bis. Récupéré après une grosse séance
   const rec = summary.recovery;
   if ((p.recovery || opts.inApp) && rec && rec.hours >= 36) {
@@ -5539,7 +6075,7 @@ function pickCoachNotifications(messages, log, now) {
    ============================================================ */
 
 const STORAGE_KEY = 'runquest_state_v1';
-const APP_VERSION = '2.4';
+const APP_VERSION = '2.5';
 
 const DEFAULT_SETTINGS = () => ({
   birthday: null,            // "MM-JJ"
@@ -5551,7 +6087,7 @@ const DEFAULT_SETTINGS = () => ({
   birthYear: null,           // facultatif : ajuste la jauge de récupération selon l'âge         // 'best' : meilleure sortie similaire | 'last' : dernière sortie similaire
   notifications: {
     enabled: false, inactivity: true, inactivityDays: 3,
-    weekEnd: true, streak: true, challenge: true, backup: true, bilan: true, recovery: true,
+    weekEnd: true, streak: true, challenge: true, backup: true, bilan: true, recovery: true, anniv: true,
   },
   notifLog: {},
   lastExport: null,
@@ -5681,7 +6217,7 @@ function normalizeRun(r) {
 
 /* ---------------- Stockage ---------------- */
 
-function freshBadges() { return JSON.parse(JSON.stringify(BADGES)); }
+function freshBadges() { return JSON.parse(JSON.stringify(BADGES.concat(typeof anniversaryBadges === 'function' ? anniversaryBadges() : []))); }
 function freshChallenges() { return JSON.parse(JSON.stringify(CHALLENGES)); }
 
 function saveData() {
@@ -5919,6 +6455,14 @@ const BADGE_RULES = {
   fun: {
     unlockedBy: (b, r, a) => !!(FUN_RULES[b.id] && FUN_RULES[b.id](r, a)),
     progress: (b, a) => FUN_PROGRESS[b.id] ? FUN_PROGRESS[b.id](a) : null,
+  },
+  anniversaires: {
+    unlockedBy: (b, r) => r.date === b.date && r.distanceKm >= b.target - 1e-9,
+    progress: b => {
+      if (b.date !== todayStr()) return null;
+      const best = Math.max(0, ...STATE.runs.filter(r => r.date === b.date).map(r => r.distanceKm));
+      return { value: best, target: b.target, unit: 'km', label: "Plus longue sortie aujourd'hui" };
+    },
   },
   fantome: {
     unlockedBy: (b, r, a) => {
@@ -6209,6 +6753,15 @@ function nextWeeklyBadge() {
   const target = weeklyThreshold(next);
   return { badge: next, km, realKm: kmForWeek(weekKeyOf(todayStr())), target, reduced: target < next.target - 1e-9,
     remaining: Math.max(0, target - km), pct: Math.min(100, km / target * 100), unlockedCount: list.filter(b => b.unlocked).length };
+}
+
+/* ---------------- Anniversaires ---------------- */
+
+function anniversaryList() { return STATE.badges.filter(b => b.collection === 'anniversaires').sort((a, b) => a.date.localeCompare(b.date)); }
+function anniversaryToday() { return anniversaryList().find(b => b.date === todayStr()) || null; }
+function upcomingAnniversaries(days) {
+  const t = todayStr(), lim = addDays(t, days);
+  return anniversaryList().filter(b => b.date > t && b.date <= lim);
 }
 
 /* ---------------- Renforcement & roue des bonus ---------------- */
@@ -6602,6 +7155,7 @@ function buildCoachSummary() {
     restDays: restDaysSetting(),
     challenge,
     lastExport: STATE.settings.lastExport,
+    annivToday: (() => { const a = anniversaryToday(); return a ? { id: a.id, name: a.name, what: a.what, minKm: a.target, unlocked: a.unlocked } : null; })(),
     recovery: (() => { const r = computeRecovery(); return r && r.driver ? { readyAt: r.readyAt.toISOString(), hours: r.driver.totalHours, runDate: r.driver.run.date } : null; })(),
     prevMonthRuns: (() => { const d = new Date(); const pm = new Date(d.getFullYear(), d.getMonth() - 1, 1); const k = `${pm.getFullYear()}-${pad2(pm.getMonth() + 1)}`;
       return STATE.runs.filter(r => r.date.startsWith(k)).length; })(),
@@ -6655,6 +7209,7 @@ const CATEGORY_META = {
   horaires: { label: 'Horaires', icon: '🌅', group: 'Événements' },
   meteo: { label: 'Météo', icon: '🌦️', group: 'Météo' },
   saisons: { label: 'Saisons & calendrier', icon: '🍃', group: 'Événements' },
+  anniversaires: { label: 'Anniversaires', icon: '🎉', group: 'Événements' },
   fun: { label: 'Fun', icon: '🎯', group: 'Fun' },
   fantome: { label: 'Fantôme', icon: '👻', group: 'Fantôme' },
   lieux: { label: 'Lieux', icon: '📌', group: 'Lieux' },
@@ -6664,7 +7219,7 @@ const CATEGORY_META = {
   hebdomadaire: { label: 'Hebdomadaires', icon: '✨', group: 'Hebdomadaires' },
 };
 const COLLECTION_ORDER = ['distance_unique', 'vitesse', 'denivele', 'regularite', 'distance_cumulee', 'courses_officielles',
-  'fantome', 'fun', 'explorer', 'lieux', 'departements', 'pays', 'saisons', 'jours_particuliers', 'horaires', 'meteo', 'defis', 'mensuel', 'hebdomadaire'];
+  'fantome', 'fun', 'explorer', 'lieux', 'departements', 'pays', 'anniversaires', 'saisons', 'jours_particuliers', 'horaires', 'meteo', 'defis', 'mensuel', 'hebdomadaire'];
 const WEATHER_OPTIONS = [
   ['pluie_fine', '🌦️', 'Pluie fine'], ['deluge', '🌧️', 'Déluge'], ['vent_face', '💨', 'Vent'], ['canicule', '🥵', 'Canicule'],
   ['grand_froid', '🥶', 'Sous 0 °C'], ['neige', '❄️', 'Neige'], ['brouillard', '🌫️', 'Brouillard'], ['orage_loin', '⛈️', 'Orage au loin'],
@@ -6809,7 +7364,7 @@ function renderAccueil(el) {
   const ac = activeChallenge();
   const near = nearestBadges(3);
   const goal = STATE.settings.weeklyGoalRuns;
-  const coach = computeCoachMessages(buildCoachSummary(), new Date(), { inApp: true }).filter(m => m.type !== 'bilan')[0];
+  const coach = computeCoachMessages(buildCoachSummary(), new Date(), { inApp: true }).filter(m => m.type !== 'bilan' && m.type !== 'anniv')[0];
   const s = STATE.settings;
 
   const banners = [];
@@ -6844,6 +7399,8 @@ function renderAccueil(el) {
     </section>
 
     ${banners.join('')}
+
+    ${annivCardHtml()}
 
     ${recoveryCardHtml()}
 
@@ -6923,6 +7480,30 @@ function renderAccueil(el) {
   on('bn-bilan', () => { s.dismissed['bilan_' + prevMk] = true; saveData(); bilanMonth = prevMk; goToScreen('bilan'); });
   on('bn-bilan-x', () => { s.dismissed['bilan_' + prevMk] = true; saveData(); renderCurrentScreen(); });
   on('bn-install-x', () => { s.dismissed.installBanner = true; saveData(); renderCurrentScreen(); });
+}
+
+/* ---------------- Anniversaires ---------------- */
+
+function annivCardHtml() {
+  const a = anniversaryToday();
+  const next = upcomingAnniversaries(7);
+  if (!a && !next.length) return '';
+  let html = '';
+  if (a) {
+    const p = badgeProgress(a);
+    html += a.unlocked
+      ? `<div class="anniv-today done"><div class="anniv-badge">${badgeVisual(a, 'small')}</div><div><div class="anniv-title">Badge obtenu ✓</div><div class="muted small">${escapeHtml(a.name)}</div></div></div>`
+      : `<div class="anniv-today"><div class="anniv-badge">${badgeVisual(a, 'small')}</div><div class="anniv-main">
+          <div class="anniv-title">Aujourd'hui : ${escapeHtml(a.what)}</div>
+          <div class="muted small">Cours au moins <b>${fmtNum(a.target)} km</b> en une sortie pour décrocher « ${escapeHtml(a.name)} ».</div>
+          ${p && p.value > 0 ? progressBar(p.value / p.target * 100, 'accent small') + `<div class="muted small">${fmtNum(p.value)} / ${fmtNum(a.target)} km</div>` : ''}
+        </div></div>`;
+  }
+  if (next.length) {
+    html += `<div class="anniv-next">${next.map(b => `<div class="anniv-next-row"><span class="anniv-j">J-${daysBetween(todayStr(), b.date)}</span>
+      <span>${escapeHtml(b.name)} · ${formatDate(b.date, { weekday: 'short', day: 'numeric', month: 'short' })}</span></div>`).join('')}</div>`;
+  }
+  return `<section class="card anniv-card"><div class="card-eyebrow">🎉 Anniversaires</div>${html}</section>`;
 }
 
 /* ---------------- Renforcement : carte, roue, bonus ---------------- */
@@ -7568,10 +8149,14 @@ function renderCollection(el) {
 }
 
 function badgeTile(b) {
-  const label = b.collection === 'departements' ? `<span class="tile-code">${b.deptCode}</span>${escapeHtml(b.name)}` :
+  const today = todayStr();
+  const anniv = b.collection === 'anniversaires';
+  const missed = anniv && !b.unlocked && b.date < today;
+  const tag = anniv ? `<span class="tile-date ${missed ? 'missed' : ''}">${b.unlocked ? formatDate(b.date, { day: 'numeric', month: 'short', year: 'numeric' }) : missed ? 'Manqué' : b.date === today ? "Aujourd'hui !" : `J-${daysBetween(today, b.date)}`}</span>` : '';
+  const label = anniv ? `${tag}${escapeHtml(b.name)}` : b.collection === 'departements' ? `<span class="tile-code">${b.deptCode}</span>${escapeHtml(b.name)}` :
     b.collection === 'hebdomadaire' ? `Niveau ${b.level} · ${b.target} km` :
     b.collection === 'mensuel' ? (b.kind === 'single' ? (b.target === 5 ? '5K du mois' : '10K du mois') : `${b.target} km du mois`) : escapeHtml(b.name);
-  return `<button class="badge-tile ${b.unlocked ? 'unlocked' : 'locked'}" data-id="${escapeHtml(b.id)}">
+  return `<button class="badge-tile ${b.unlocked ? 'unlocked' : 'locked'} ${missed ? 'missed' : ''}" data-id="${escapeHtml(b.id)}">
     ${badgeVisual(b, 'small')}${b.unlocked ? (b.boosted ? '<span class="lock-icon" title="Obtenu avec un bonus renfo">💪</span>' : '') : '<span class="lock-icon">🔒</span>'}
     <span class="badge-tile-name">${label}</span></button>`;
 }
@@ -7591,6 +8176,7 @@ function openBadgeSheet(id) {
     <div class="sheet-badge ${b.unlocked ? '' : 'locked'}">${badgeVisual(b)}</div>
     <div class="sheet-title center">${escapeHtml(b.name)}</div>
     <div class="muted center">${escapeHtml(b.condition || b.description || '')}</div>
+    ${b.collection === 'anniversaires' && !b.unlocked ? `<div class="center sheet-symbol">${b.date < todayStr() ? '⏳ Badge manqué : la date est passée.' : b.date === todayStr() ? "🔥 C'est aujourd'hui !" : `📅 Dans ${daysBetween(todayStr(), b.date)} jour(s), le ${formatDate(b.date, { weekday: 'long', day: 'numeric', month: 'long' })}`}</div>` : ''}
     ${b.collection === 'departements' || b.collection === 'pays' ? `<div class="center sheet-symbol">${escapeHtml(b.symbole || b.description || '')}</div>` : ''}
     ${b.unlocked ? `<div class="sheet-unlocked">✅ Débloqué le ${formatDate(b.unlockedDate)}${run ? ` · sortie de ${fmtNum(run.distanceKm)} km` : b.unlockedByRenfo ? ' · grâce à une séance de renfo' : ''}${b.boosted ? '<br><span class="muted small">💪 Obtenu avec un bonus renfo</span>' : ''}</div>` : prog || '<div class="sheet-unlocked muted">Pas encore débloqué</div>'}
     <button class="btn-primary" data-close>Fermer</button>`);
@@ -7895,6 +8481,7 @@ function renderReglages(el) {
           ${toggle('weekEnd', "Le week-end, si un badge hebdo est à portée")}
           ${toggle('streak', 'Quand ma série est en jeu')}
           ${toggle('challenge', "Quand un checkpoint de défi approche")}
+          ${toggle('anniv', "Le jour d'un anniversaire à badge")}
           ${toggle('recovery', "Quand je suis récupéré après une grosse séance")}
           ${toggle('bilan', 'Quand mon bilan du mois est prêt')}
           ${toggle('backup', 'Me rappeler de sauvegarder mes données')}

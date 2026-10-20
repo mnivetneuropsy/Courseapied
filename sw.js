@@ -1,5 +1,5 @@
 /* RunQuest — service worker : hors-ligne + rappels */
-const CACHE = 'runquest-v2.4';
+const CACHE = 'runquest-v2.5';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 const DATA_CACHE = 'runquest-data';
 
@@ -81,6 +81,16 @@ function computeCoachMessages(summary, now, opts) {
         body: `Plus que ${String(remaining).replace('.', ',')} km pour l'atteindre.`,
       });
     }
+  }
+
+  // 1 bis. Anniversaire du jour : badge à décrocher (prioritaire, une seule fois)
+  const an = summary.annivToday;
+  if ((p.anniv || opts.inApp) && an && !an.unlocked) {
+    out.unshift({
+      key: `anniv:${an.id}`, type: 'anniv',
+      title: `🎉 Aujourd'hui : ${an.what}`,
+      body: `Cours au moins ${an.minKm} km aujourd'hui pour décrocher le badge « ${an.name.replace(/^\S+\s/, '')} ».`,
+    });
   }
 
   // 2 bis. Récupéré après une grosse séance
