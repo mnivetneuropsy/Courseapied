@@ -1,5 +1,5 @@
 /* RunQuest — service worker : hors-ligne + rappels */
-const CACHE = 'runquest-v2.5';
+const CACHE = 'runquest-v2.6';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 const DATA_CACHE = 'runquest-data';
 
@@ -43,7 +43,7 @@ function computeCoachMessages(summary, now, opts) {
 
   const sameWeek = summary.weekKey === coachWeekKey(today);
   const kmWeek = sameWeek ? summary.kmWeek : 0;
-  const levels = summary.weeklyLevels || [10, 20, 30, 40, 50];
+  const levels = summary.weeklyLevels || [8, 16, 24, 32, 40];
   const unlockedLevels = sameWeek ? (summary.weeklyUnlockedCount || 0) : 0;
   const daysSince = summary.lastRunDate ? coachDaysBetween(summary.lastRunDate, today) : null;
   const dow = now.getDay(); // 0 = dimanche

@@ -5832,7 +5832,7 @@ const CHALLENGES = [
 //   assets/badges/weekly/2026-S32_niveau1.png  …  2026-S32_niveau5.png
 // Optionnel : WEEKLY_OVERRIDES permet de donner un nom affiché à une semaine précise.
 
-const WEEKLY_LEVELS_KM = [10, 20, 30, 40, 50];
+const WEEKLY_LEVELS_KM = [8, 16, 24, 32, 40]; // un palier tous les 8 km
 
 const WEEKLY_OVERRIDES = [
   // { year: 2026, week: 32, label: "Semaine spéciale" },
@@ -5964,7 +5964,7 @@ function computeCoachMessages(summary, now, opts) {
 
   const sameWeek = summary.weekKey === coachWeekKey(today);
   const kmWeek = sameWeek ? summary.kmWeek : 0;
-  const levels = summary.weeklyLevels || [10, 20, 30, 40, 50];
+  const levels = summary.weeklyLevels || [8, 16, 24, 32, 40];
   const unlockedLevels = sameWeek ? (summary.weeklyUnlockedCount || 0) : 0;
   const daysSince = summary.lastRunDate ? coachDaysBetween(summary.lastRunDate, today) : null;
   const dow = now.getDay(); // 0 = dimanche
@@ -6075,7 +6075,7 @@ function pickCoachNotifications(messages, log, now) {
    ============================================================ */
 
 const STORAGE_KEY = 'runquest_state_v1';
-const APP_VERSION = '2.5';
+const APP_VERSION = '2.6';
 
 const DEFAULT_SETTINGS = () => ({
   birthday: null,            // "MM-JJ"
@@ -6589,7 +6589,7 @@ function recalculateEverything() {
       if (x.bonus === 'elan') { if (!acc.elanActive) { acc.elanActive = x.id; x.applied = true; } }
       else if (x.bonus && next) {
         acc.weekRed[wk] = acc.weekRed[wk] || {};
-        acc.weekRed[wk][next.level] = (acc.weekRed[wk][next.level] || 0) + (x.bonus === 'pouce' ? 2 : next.target * 0.1);
+        acc.weekRed[wk][next.level] = (acc.weekRed[wk][next.level] || 0) + (x.bonus === 'pouce' ? RENFO_POUCE_KM : next.target * 0.1);
         x.appliedLevel = next.level; x.applied = true;
         checkWeek(wk, x.date, null, true);
       }
@@ -6766,8 +6766,9 @@ function upcomingAnniversaries(days) {
 
 /* ---------------- Renforcement & roue des bonus ---------------- */
 
+const RENFO_POUCE_KM = 1.5;
 const RENFO_BONUSES = {
-  pouce: { icon: '👍', name: 'Coup de pouce', short: '−2 km sur le prochain palier', color: '#6BCB77' },
+  pouce: { icon: '👍', name: 'Coup de pouce', short: '−1,5 km sur le prochain palier', color: '#6BCB77' },
   joker: { icon: '🃏', name: 'Joker', short: '−10 % sur le prochain palier', color: '#E8B84B' },
   elan: { icon: '🚀', name: 'Élan', short: 'Prochaine sortie comptée ×1,15', color: '#FF7A45' },
 };
@@ -6790,7 +6791,7 @@ function addRenfo(date) {
   const now = new Date();
   const time = date === todayStr() ? `${pad2(now.getHours())}:${pad2(now.getMinutes())}` : '23:59';
   const id = 'renfo_' + Date.now();
-  const before = el.next ? { level: el.next.level, target: weeklyThreshold(el.next) } : null;
+  const before = el.next ? { level: el.next.level, target: weeklyThreshold(el.next), normal: el.next.target } : null;
   const res = commitRunChange(() => { STATE.renfo.push({ id, date, time, bonus }); });
   res.renfo = STATE.renfo.find(x => x.id === id);
   res.before = before;
@@ -7565,7 +7566,7 @@ function spinWheel(res, done) {
   let effect = '';
   if (x.bonus === 'elan') effect = 'Ta prochaine sortie comptera pour 115 % dans la jauge hebdo (10 km courus = 11,5 km comptés).';
   else if (res.before) {
-    const after = res.before.target - (x.bonus === 'pouce' ? 2 : res.before.level * 10 * 0.1);
+    const after = res.before.target - (x.bonus === 'pouce' ? RENFO_POUCE_KM : res.before.normal * 0.1);
     effect = `Palier ${res.before.level} : ${fmtNum(res.before.target)} → <b>${fmtNum(after)} km</b>.` +
       (res.newBadges.some(b => b.collection === 'hebdomadaire') ? ' Et c\'est suffisant : palier validé tout de suite ! 🎉' : '');
   }
@@ -8194,7 +8195,7 @@ function weeklyChartSvg() {
   STATE.runs.forEach(r => { const w = weeks.find(x => x.key === weekKeyOf(r.date)); if (w) w.km += r.distanceKm; });
   const max = Math.max(20, ...weeks.map(w => w.km));
   const W = 320, H = 150, bw = 17, x0 = 24, gap = (W - x0 - 4 - bw * 12) / 11;
-  const lines = [10, 20, 30, 40, 50].filter(v => v <= max).map(v => {
+  const lines = WEEKLY_LEVELS_KM.filter(v => v <= max).map(v => {
     const y = 120 - v / max * 105;
     return `<line x1="${x0}" x2="${W - 4}" y1="${y}" y2="${y}" class="ch-grid"/><text x="${x0 - 5}" y="${y + 3}" class="ch-lbl" text-anchor="end">${v}</text>`;
   }).join('');
